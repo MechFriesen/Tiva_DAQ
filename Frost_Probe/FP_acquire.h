@@ -14,7 +14,15 @@ extern "C"
 
 extern struct tm RealTime;
 
-//extern struct
+typedef struct
+{
+    uint32_t MeasPeriod;            // inverse of sample rate
+    uint32_t RTCMatchPeriod[1440];  // seconds until next RTC match
+    uint32_t SamplesPerDay;         // number of samples per day
+    uint32_t MeasurementsPerSample; // number of measurements in a sample
+    uint32_t RTCMatchCount;         // number of RTC matches
+}
+tCfgState;
 
 extern bool AcquireSetup(uint32_t TimerClkFreq);
 extern void StartLogging( void );

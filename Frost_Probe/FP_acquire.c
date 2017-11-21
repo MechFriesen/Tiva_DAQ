@@ -24,12 +24,11 @@
 #include "FP_acquire.h"
 
 
-static uint32_t RTCMatchPeriod[1440], SamplePeriod, SamplesPerDay, MeasurementsPerSample;
 static volatile uint32_t RTCIntCounter = 0, TimerIntCounter;     // counts number of RTC interrupts for measurement scheduling
+tCfgState ConfigState;
 
 
 // Function to get parameters from Main
-// The time at which each sample signal to
 bool
 AcquireSetup(uint32_t TimerClkFreq)
 {
@@ -40,10 +39,10 @@ AcquireSetup(uint32_t TimerClkFreq)
 
     UARTprintf("How many samples per day? (max 1440)\n");
     UARTgets(uartBuf, MaxInputLen);
-    SamplesPerDay = ustrtoul(uartBuf, endptr, 10);
+    ConfigState.SamplesPerDay = ustrtoul(uartBuf, endptr, 10);
 
     ulocaltime( HibernateRTCGet(), &tempSampleTime);    // load values to tm struct
-    for( ii = 1; ii <= SamplesPerDay; ii++)
+    for( ii = 1; ii <= ConfigState.SamplesPerDay; ii++)
     {
         UARTprintf("When (HH:MM) should sample %i be taken? \n", ii);
         UARTgets(uartBuf, MaxInputLen);
@@ -65,12 +64,12 @@ AcquireSetup(uint32_t TimerClkFreq)
         {
             if( ii == 1)
             {
-                RTCMatchPeriod[ii] = hour*3600 + min*60;      // time from midnight in seconds
+                ConfigState.RTCMatchPeriod[ii] = hour*3600 + min*60;      // time from midnight in seconds
             }
             else
             {
                 // time from last sample
-                RTCMatchPeriod[ii] = hour*3600 + min*60 - RTCMatchPeriod[ii-1];
+                ConfigState.RTCMatchPeriod[ii] = hour*3600 + min*60 - ConfigState.RTCMatchPeriod[ii-1];
             }
         }
     }
@@ -82,13 +81,13 @@ AcquireSetup(uint32_t TimerClkFreq)
 
     // MeasFreq is in Hz. Converts to clock ticks.
     // 1 clock tick = 1/12500000 s
-    SamplePeriod = TimerClkFreq / SampleFreq;
+    ConfigState.MeasPeriod = TimerClkFreq / SampleFreq;
 
     // Determine sample duration
     UARTprintf("Duration (sec) of sampling?\n");
     UARTgets( uartBuf, MaxInputLen);
     SampleDuration = ustrtoul( uartBuf, endptr, 10);
-    MeasurementsPerSample = SampleDuration / SamplePeriod;
+    ConfigState.MeasurementsPerSample = SampleDuration / ConfigState.MeasPeriod;
 
     // set up the RTC interrupt shit.
     SysCtlPeripheralEnable(SYSCTL_PERIPH_HIBERNATE);       // Enable hibernate module
@@ -103,7 +102,7 @@ AcquireSetup(uint32_t TimerClkFreq)
     ii = 0;
     while(FirstMatch < HibernateRTCGet())
     {
-        FirstMatch += RTCMatchPeriod[ii];
+        FirstMatch += ConfigState.RTCMatchPeriod[ii];
         ii++;
     }
     HibernateRTCMatchSet(0, FirstMatch);
@@ -226,7 +225,7 @@ TimerHandler(void)
     UARTprintf("%4d, %4d, %4d, %4d\n", pui32ADC0Value[0], pui32ADC0Value[1],
                pui32ADC0Value[2], pui32ADC0Value[3]);
 
-    if( TimerIntCounter > MeasurementsPerSample)
+    if( TimerIntCounter > ConfigState.MeasurementsPerSample)
     {
         IntDisable(INT_TIMER0A);
     }
@@ -251,16 +250,16 @@ RTCHandler(void)
     // Set up the Timer interrupt shit
     SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0);       // Enable timer 0
     TimerConfigure(TIMER0_BASE, TIMER_CFG_PERIODIC);    // Configure as full-width
-    TimerLoadSet( TIMER0_BASE, TIMER_A, SamplePeriod);    // sets the timer interrupt period
+    TimerLoadSet( TIMER0_BASE, TIMER_A, ConfigState.MeasPeriod);    // sets the timer interrupt period
     IntEnable(INT_TIMER0A);
     TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
     TimerEnable(TIMER0_BASE, TIMER_A);
 
 
-    RTCIntCounter++;    // Count which sample this is
-    if(RTCIntCounter <= SamplesPerDay)
+    ConfigState.RTCMatchCount++;    // Count which sample this is
+    if(RTCIntCounter <= ConfigState.SamplesPerDay)
     {
-        HibernateRTCMatchSet(0, (RTCMatchPeriod[RTCIntCounter] + RTCWakeTime));
+        HibernateRTCMatchSet(0, (ConfigState.RTCMatchPeriod[ConfigState.RTCMatchCount] + RTCWakeTime));
     }
     else
     {
