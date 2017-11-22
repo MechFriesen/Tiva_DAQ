@@ -27,12 +27,85 @@
 static volatile uint32_t RTCIntCounter = 0, TimerIntCounter;     // counts number of RTC interrupts for measurement scheduling
 tCfgState ConfigState;
 
+// This function is called when the timer sends an interrupt.
+void
+TimerHandler(void)
+{
+    struct tm TimeStamp;            // holds RTC timestamp seconds
+    uint32_t TimeStampSS;           // holds RTC timestamp subseconds
+    uint32_t pui32ADC0Value[8];     // buffer for ADC data
+
+//    uint8_t interruptStatus;
+
+    TimerIntCounter++;
+
+    ADCProcessorTrigger(ADC0_BASE, 0);  // Trigger the ADC conversion.
+
+    // Wait for conversion to be completed.
+    while(!ADCIntStatus(ADC0_BASE, 0, false))
+    {
+    }
+
+    ADCIntClear(ADC0_BASE, 0);  // Clear the ADC interrupt flag.
+
+    ADCSequenceDataGet(ADC0_BASE, 0, pui32ADC0Value);       // Read ADC Value.
+
+    ulocaltime(HibernateRTCGet(), &TimeStamp);           // gets time from RTC and stores in a struct
+    TimeStampSS = HibernateRTCSSGet() * 1000 / 32768;  // gets subsecond value from RTC in ms
+
+    // Display timestamp
+    // possibly get rid of the minutes and seconds part for faster operation
+    UARTprintf("%i:%i.%i,",  TimeStamp.tm_min, TimeStamp.tm_sec, TimeStampSS);
+    // Display digital values for CH0 - CH3
+    UARTprintf("%4d, %4d, %4d, %4d\n", pui32ADC0Value[0], pui32ADC0Value[1],
+               pui32ADC0Value[2], pui32ADC0Value[3]);
+
+    if( TimerIntCounter > ConfigState.MeasurementsPerSample)
+    {
+        IntDisable(INT_TIMER0A);
+    }
+}
+
+bool
+RTCHandler(void)
+{
+    uint32_t ui32Status, RTCWakeTime;
+
+    ui32Status = HibernateIntStatus(1);
+    HibernateIntClear(ui32Status);
+
+    RTCWakeTime = HibernateRTCGet();
+
+
+    // Set up the ADC
+    while(!ADCSetup());
+
+    // Set up the Timer interrupt shit
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0);       // Enable timer 0
+    TimerConfigure(TIMER0_BASE, TIMER_CFG_PERIODIC);    // Configure as full-width
+    TimerLoadSet( TIMER0_BASE, TIMER_A, ConfigState.MeasPeriod);    // sets the timer interrupt period
+    IntEnable(INT_TIMER0A);
+    TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
+    TimerEnable(TIMER0_BASE, TIMER_A);
+
+
+    ConfigState.RTCMatchCount++;    // Count which sample this is
+    if(RTCIntCounter <= ConfigState.SamplesPerDay)
+    {
+        HibernateRTCMatchSet(0, (ConfigState.RTCMatchPeriod[ConfigState.RTCMatchCount] + RTCWakeTime));
+    }
+    else
+    {
+        // something to handle roll-over to the next day
+    }
+    return true;
+}
 
 // Function to get parameters from Main
 bool
 AcquireSetup(uint32_t TimerClkFreq)
 {
-    uint32_t SampleFreq = 1,  ii, MaxInputLen = 10, SampleDuration = 1;
+    uint32_t SampleFreq = 1,  ii, MaxInputLen = 10, SampleDuration = 1, FirstMatch;
     struct tm tempSampleTime;           // temporary time structure for validity checks
     const char** endptr = 0;
     char uartBuf[10];
@@ -65,6 +138,7 @@ AcquireSetup(uint32_t TimerClkFreq)
             if( ii == 1)
             {
                 ConfigState.RTCMatchPeriod[ii] = hour*3600 + min*60;      // time from midnight in seconds
+                FirstMatch = umktime( &tempSampleTime);
             }
             else
             {
@@ -96,16 +170,15 @@ AcquireSetup(uint32_t TimerClkFreq)
     HibernateRTCEnable();               // Set the RTC running
 //    SetSavedState(&g_sConfigState);
     HibernateWakeSet(HIBERNATE_WAKE_PIN | HIBERNATE_WAKE_RTC);
+//    HibernateIntRegister(RTCHandler);
 
-    // Set first match
-    uint32_t FirstMatch = umktime( &tempSampleTime);
+    // Set first RTC match
     ii = 0;
     while(FirstMatch < HibernateRTCGet())
     {
         FirstMatch += ConfigState.RTCMatchPeriod[ii];
         ii++;
     }
-
 
     UARTprintf("Firstmatch: %i\n", FirstMatch);
     HibernateRTCMatchSet(0, FirstMatch);
@@ -193,80 +266,4 @@ ADCSetup()
 
     return 1;
 
-}
-
-
-// This function is called when the timer sends an interrupt.
-void
-TimerHandler(void)
-{
-    struct tm TimeStamp;            // holds RTC timestamp seconds
-    uint32_t TimeStampSS;           // holds RTC timestamp subseconds
-    uint32_t pui32ADC0Value[8];     // buffer for ADC data
-
-//    uint8_t interruptStatus;
-
-    TimerIntCounter++;
-
-    ADCProcessorTrigger(ADC0_BASE, 0);  // Trigger the ADC conversion.
-
-    // Wait for conversion to be completed.
-    while(!ADCIntStatus(ADC0_BASE, 0, false))
-    {
-    }
-
-    ADCIntClear(ADC0_BASE, 0);  // Clear the ADC interrupt flag.
-
-    ADCSequenceDataGet(ADC0_BASE, 0, pui32ADC0Value);       // Read ADC Value.
-
-    ulocaltime(HibernateRTCGet(), &TimeStamp);           // gets time from RTC and stores in a struct
-    TimeStampSS = HibernateRTCSSGet() * 1000 / 32768;  // gets subsecond value from RTC in ms
-
-    // Display timestamp
-    // possibly get rid of the minutes and seconds part for faster operation
-    UARTprintf("%i:%i.%i,",  TimeStamp.tm_min, TimeStamp.tm_sec, TimeStampSS);
-    // Display digital values for CH0 - CH3
-    UARTprintf("%4d, %4d, %4d, %4d\n", pui32ADC0Value[0], pui32ADC0Value[1],
-               pui32ADC0Value[2], pui32ADC0Value[3]);
-
-    if( TimerIntCounter > ConfigState.MeasurementsPerSample)
-    {
-        IntDisable(INT_TIMER0A);
-    }
-}
-
-void
-RTCHandler(void)
-{
-    uint32_t ui32Status, RTCWakeTime;
-
-    ui32Status = HibernateIntStatus(1);
-    HibernateIntClear(ui32Status);
-
-    RTCWakeTime = HibernateRTCGet();
-
-    // Set up the display again
-
-
-    // Set up the ADC
-    while(!ADCSetup());
-
-    // Set up the Timer interrupt shit
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0);       // Enable timer 0
-    TimerConfigure(TIMER0_BASE, TIMER_CFG_PERIODIC);    // Configure as full-width
-    TimerLoadSet( TIMER0_BASE, TIMER_A, ConfigState.MeasPeriod);    // sets the timer interrupt period
-    IntEnable(INT_TIMER0A);
-    TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
-    TimerEnable(TIMER0_BASE, TIMER_A);
-
-
-    ConfigState.RTCMatchCount++;    // Count which sample this is
-    if(RTCIntCounter <= ConfigState.SamplesPerDay)
-    {
-        HibernateRTCMatchSet(0, (ConfigState.RTCMatchPeriod[ConfigState.RTCMatchCount] + RTCWakeTime));
-    }
-    else
-    {
-        // something to handle roll-over to the next day
-    }
 }
