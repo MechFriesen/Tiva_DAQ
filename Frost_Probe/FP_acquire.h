@@ -25,6 +25,6 @@ typedef struct
 tCfgState;
 
 extern bool AcquireSetup(uint32_t TimerClkFreq);
-extern void StartLogging( void );
+extern bool StartLogging( void );
 extern bool ADCSetup( void );
 extern bool RTCHandler( void);

@@ -147,7 +147,7 @@ SysTimeSet(void)
 
     UARTprintf("\nSystem Date (DD/MM/YY) & Time (HH:MM:SS)\n");
     ulocaltime(HibernateRTCGet(), &RealTime);
-    UARTprintf("%i/%i/%i %i:%i:%i\n", RealTime.tm_mday, (RealTime.tm_mon + 1),
+    UARTprintf("%i/%i/%i %i:%02i:%02i\n", RealTime.tm_mday, (RealTime.tm_mon + 1),
                (RealTime.tm_year % 100), RealTime.tm_hour, RealTime.tm_min, RealTime.tm_sec);
 
     // Date change
@@ -208,10 +208,15 @@ main(void)
     // Checks if the the wake-up is due to an RTC match
     // if so, we go to the RTC handler in FP_acquire
     uint32_t ui32Status = HibernateIntStatus(0);
-    UARTprintf("Hibernate Interrupt Status: %x\n", ui32Status);
-    if(ui32Status == (ui32Status & 0x00000001))
+    uint32_t isRTCWake = ui32Status & 0x00000001;
+    UARTprintf("Hibernate Interrupt Raw Status: %x\n", ui32Status);
+    UARTprintf("Hibernate Interrupt Status: %x\n", isRTCWake);
+    if(ui32Status & 0x00000001)
     {
         while(!RTCHandler())
+        {
+        }
+        while(!StartLogging())
         {
         }
     }
@@ -239,7 +244,7 @@ main(void)
 
     //
     // Display the setup on the console.
-    //
+    // This text doesn't actually mean anything
     UARTprintf("ADC ->\n");
     UARTprintf("  Type: Single Ended\n");
     UARTprintf("  Samples: One\n");
@@ -249,6 +254,8 @@ main(void)
     UARTprintf("System Speed: %d Hz\n", SystemClock);
     UARTprintf("Time, CH0, CH1, CH2, CH3\n");
 
-    StartLogging();
+    while(!StartLogging())
+    {
+    }
 
 }
