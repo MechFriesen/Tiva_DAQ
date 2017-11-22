@@ -147,7 +147,7 @@ SysTimeSet(void)
 
     UARTprintf("\nSystem Date (DD/MM/YY) & Time (HH:MM:SS)\n");
     ulocaltime(HibernateRTCGet(), &RealTime);
-    UARTprintf("%i/%i/%i %i:%i:%i\n", RealTime.tm_mday, RealTime.tm_mon,
+    UARTprintf("%i/%i/%i %i:%i:%i\n", RealTime.tm_mday, (RealTime.tm_mon + 1),
                (RealTime.tm_year % 100), RealTime.tm_hour, RealTime.tm_min, RealTime.tm_sec);
 
     // Date change

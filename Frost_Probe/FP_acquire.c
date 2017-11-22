@@ -105,6 +105,9 @@ AcquireSetup(uint32_t TimerClkFreq)
         FirstMatch += ConfigState.RTCMatchPeriod[ii];
         ii++;
     }
+
+
+    UARTprintf("Firstmatch: %i\n", FirstMatch);
     HibernateRTCMatchSet(0, FirstMatch);
 
 
@@ -199,7 +202,7 @@ TimerHandler(void)
 {
     struct tm TimeStamp;            // holds RTC timestamp seconds
     uint32_t TimeStampSS;           // holds RTC timestamp subseconds
-    uint32_t pui32ADC0Value[4];     // buffer for ADC data
+    uint32_t pui32ADC0Value[8];     // buffer for ADC data
 
 //    uint8_t interruptStatus;
 
@@ -217,9 +220,10 @@ TimerHandler(void)
     ADCSequenceDataGet(ADC0_BASE, 0, pui32ADC0Value);       // Read ADC Value.
 
     ulocaltime(HibernateRTCGet(), &TimeStamp);           // gets time from RTC and stores in a struct
-    TimeStampSS = HibernateRTCSSGet()*1000 / 32768;  // gets subsecond value from RTC in ms
+    TimeStampSS = HibernateRTCSSGet() * 1000 / 32768;  // gets subsecond value from RTC in ms
 
     // Display timestamp
+    // possibly get rid of the minutes and seconds part for faster operation
     UARTprintf("%i:%i.%i,",  TimeStamp.tm_min, TimeStamp.tm_sec, TimeStampSS);
     // Display digital values for CH0 - CH3
     UARTprintf("%4d, %4d, %4d, %4d\n", pui32ADC0Value[0], pui32ADC0Value[1],
