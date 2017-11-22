@@ -35,11 +35,11 @@ DateSet(struct tm RealTime)
     if(ustrtoul( uartIN, endptr, 10))
     {
         char* token = strtok(uartIN, "/");
-        RealTime.tm_mday = ustrtoul( token, endptr, 10);
+        RealTime.tm_mday = ustrtoul( token, endptr, 10);        // day of the month
         token = strtok(NULL, "/");
-        RealTime.tm_mon = ustrtoul( token, endptr, 10);
+        RealTime.tm_mon = ustrtoul( token, endptr, 10) - 1;     // months since Jan
         token = strtok(NULL, "/");
-        RealTime.tm_year = ustrtoul( token, endptr, 10) + 100;
+        RealTime.tm_year = ustrtoul( token, endptr, 10) + 100;  // years since 1900
         token = strtok(NULL, "/");
         if( umktime(&RealTime) == -1)
         {
@@ -48,7 +48,7 @@ DateSet(struct tm RealTime)
         }
         HibernateRTCSet(umktime(&RealTime));
         ulocaltime(HibernateRTCGet(), &RealTime);
-        UARTprintf("New date: %i/%i/%i\n", RealTime.tm_mday, RealTime.tm_mon,
+        UARTprintf("New date: %i/%i/%i\n", RealTime.tm_mday, (RealTime.tm_mon + 1),
                        (RealTime.tm_year % 100));
     }
     return 1;
