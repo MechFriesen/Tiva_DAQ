@@ -220,6 +220,10 @@ main(void)
         {
         }
     }
+    else
+    {
+        UARTprintf("System Clock Freq: %i", ROM_SysCtlClockGet());
+    }
 
     //
     // Setup the RTC for hibernate and acquisition time
@@ -241,18 +245,6 @@ main(void)
     while(!AcquireSetup( SystemClock))
     {
     }
-
-    //
-    // Display the setup on the console.
-    // This text doesn't actually mean anything
-    UARTprintf("ADC ->\n");
-    UARTprintf("  Type: Single Ended\n");
-    UARTprintf("  Samples: One\n");
-    UARTprintf("  Update Rate: 1.5s\n");
-    UARTprintf("  Input Pin: AIN0/PE3\n\n");
-
-    UARTprintf("System Speed: %d Hz\n", SystemClock);
-    UARTprintf("Time, CH0, CH1, CH2, CH3\n");
 
     while(!StartLogging())
     {
