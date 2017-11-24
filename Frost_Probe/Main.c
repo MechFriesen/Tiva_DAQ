@@ -145,7 +145,7 @@ bool
 SysTimeSet(void)
 {
 
-    UARTprintf("\nSystem Date (DD/MM/YY) & Time (HH:MM:SS)\n");
+    UARTprintf("\n\nSystem Date (DD/MM/YY) & Time (HH:MM:SS)\n");
     ulocaltime(HibernateRTCGet(), &RealTime);
     UARTprintf("%i/%i/%i %i:%02i:%02i\n", RealTime.tm_mday, (RealTime.tm_mon + 1),
                (RealTime.tm_year % 100), RealTime.tm_hour, RealTime.tm_min, RealTime.tm_sec);
@@ -209,8 +209,7 @@ main(void)
     // if so, we go to the RTC handler in FP_acquire
     uint32_t ui32Status = HibernateIntStatus(0);
     uint32_t isRTCWake = ui32Status & 0x00000001;
-    UARTprintf("Hibernate Interrupt Raw Status: %x\n", ui32Status);
-    UARTprintf("Hibernate Interrupt Status: %x\n", isRTCWake);
+
     if(ui32Status & 0x00000001)
     {
         while(!RTCHandler())
@@ -219,10 +218,6 @@ main(void)
         while(!StartLogging())
         {
         }
-    }
-    else
-    {
-        UARTprintf("System Clock Freq: %i", ROM_SysCtlClockGet());
     }
 
     //
@@ -238,7 +233,6 @@ main(void)
     while(!SysTimeSet())
     {
     }
-
 
     // Setup the ADC and RTC interrupts
     int SystemClock = SysCtlClockGet();

@@ -35,41 +35,35 @@ Timer0Handler(void)
 {
 //    struct tm TimeStamp;            // holds RTC timestamp seconds
 //    uint32_t TimeStampSS;           // holds RTC timestamp subseconds
-//    uint32_t pui32ADC0Value[8];     // buffer for ADC data
-
-//    uint8_t interruptStatus;
+    uint32_t pui32ADC0Value[8];     // buffer for ADC data
 
     TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
 
     IntDisable(INT_TIMER0A);
 
-//    ADCProcessorTrigger(ADC0_BASE, 0);  // Trigger the ADC conversion.
+    ADCProcessorTrigger(ADC0_BASE, 0);  // Trigger the ADC conversion.
 
     // Wait for conversion to be completed.
-//    while(!ADCIntStatus(ADC0_BASE, 0, false))
-//    {
-//    }
-//
-//    ADCIntClear(ADC0_BASE, 0);  // Clear the ADC interrupt flag.
-//
-//    ADCSequenceDataGet(ADC0_BASE, 0, pui32ADC0Value);       // Read ADC Value.
+    while(!ADCIntStatus(ADC0_BASE, 0, false))
+    {
+    }
+
+    ADCIntClear(ADC0_BASE, 0);  // Clear the ADC interrupt flag.
+
+    ADCSequenceDataGet(ADC0_BASE, 0, pui32ADC0Value);       // Read ADC Value.
 
     // This output gets about 600 Hz
-//    UARTprintf("%03i, %i, %4d\n", HibernateRTCSSGet(), TimerIntCounter, pui32ADC0Value[0]);
+    UARTprintf("%03i, %4d\n", HibernateRTCSSGet(), pui32ADC0Value[0]);
 
     // This one is maybe faster
     // Result (not waiting for ADC) = 1638.4 Hz
-    UARTprintf("%05i\n", HibernateRTCSSGet());
+//    UARTprintf("%05i\n", HibernateRTCSSGet());
 
     TimerIntCounter++;
     if( TimerIntCounter <= ConfigState.MeasurementsPerSample)
     {
         IntEnable(INT_TIMER0A);
     }
-//    if( TimerIntCounter > ConfigState.MeasurementsPerSample)
-//    {
-//        TimerIntDisable( TIMER0_BASE, TIMER_TIMA_TIMEOUT);
-//    }
 }
 
 bool
@@ -92,7 +86,7 @@ RTCHandler(void)
     UARTprintf("The ADC is set up!\n");
     UARTprintf("MeasPeriod: %i\n", ConfigState.MeasPeriod);
     UARTprintf("Meas per Sample: %i\n", ConfigState.MeasurementsPerSample);
-    UARTprintf("Time [us], MeasNumber, CH0\n");
+    UARTprintf("Time [us], CH0\n");
 
     // Set up the Timer interrupt shit
     TimerIntCounter = 0;
@@ -132,7 +126,7 @@ AcquireSetup(uint32_t TimerClkFreq)
     struct tm tempSampleTime;           // temporary time structure for validity checks
     const char** endptr = 0;
     char uartBuf[10];
-    TimerClkFreq = 32768;
+//    TimerClkFreq = 32768;
 
     UARTprintf("How many samples per day? (max 6)\n");
     UARTgets(uartBuf, MaxInputLen);
@@ -356,7 +350,6 @@ SetHibData( tCfgState* ConfigState)
 
     // Initialize locals.
     CfgStateLen = sizeof(tCfgState) / 4;
-    UARTprintf("CfgStateLen = %i\n", CfgStateLen);
 
     if(ConfigState)
     {
