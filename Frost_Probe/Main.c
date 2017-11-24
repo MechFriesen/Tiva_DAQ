@@ -145,9 +145,9 @@ bool
 SysTimeSet(void)
 {
 
-    UARTprintf("\nSystem Date (DD/MM/YY) & Time (HH:MM:SS)\n");
+    UARTprintf("\n\nSystem Date (DD/MM/YY) & Time (HH:MM:SS)\n");
     ulocaltime(HibernateRTCGet(), &RealTime);
-    UARTprintf("%i/%i/%i %i:%i:%i\n", RealTime.tm_mday, (RealTime.tm_mon + 1),
+    UARTprintf("%i/%i/%i %i:%02i:%02i\n", RealTime.tm_mday, (RealTime.tm_mon + 1),
                (RealTime.tm_year % 100), RealTime.tm_hour, RealTime.tm_min, RealTime.tm_sec);
 
     // Date change
@@ -182,13 +182,14 @@ RTCSetup(void)
 int
 main(void)
 {
-    struct tm TimeStamp;
+
+//    struct tm TimeStamp;
 
     //
     // This array is used for storing the data read from the ADC FIFO. Sequencer
     // 0 has a FIFO of 8 32-bit words.
     //
-    uint32_t pui32ADC0Value[8];
+//    uint32_t pui32ADC0Value[8];
 
     //
     // Set the clocking to run at 20 MHz (200 MHz / 10) using the PLL.  When
@@ -204,6 +205,21 @@ main(void)
     //
     InitConsole();
 
+    // Checks if the the wake-up is due to an RTC match
+    // if so, we go to the RTC handler in FP_acquire
+    uint32_t ui32Status = HibernateIntStatus(0);
+    uint32_t isRTCWake = ui32Status & 0x00000001;
+
+    if(ui32Status & 0x00000001)
+    {
+        while(!RTCHandler())
+        {
+        }
+        while(!StartLogging())
+        {
+        }
+    }
+
     //
     // Setup the RTC for hibernate and acquisition time
     //
@@ -218,85 +234,14 @@ main(void)
     {
     }
 
-
     // Setup the ADC and RTC interrupts
     int SystemClock = SysCtlClockGet();
     while(!AcquireSetup( SystemClock))
     {
     }
 
-    //
-    // Display the setup on the console.
-    //
-    UARTprintf("ADC ->\n");
-    UARTprintf("  Type: Single Ended\n");
-    UARTprintf("  Samples: One\n");
-    UARTprintf("  Update Rate: 1.5s\n");
-    UARTprintf("  Input Pin: AIN0/PE3\n\n");
-
-    UARTprintf("System Speed: %d Hz\n", SystemClock);
-    UARTprintf("Time, CH0, CH1, CH2, CH3\n");
-
-    // A function here to setup the ADC shit
-
-
-    //
-    // The ADC0 peripheral must be enabled for use.
-    //
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_ADC0);
-
-    //
-    // For this example ADC0 is used with AIN0 on port E7.
-    // The actual port and pins used may be different on your part, consult
-    // the data sheet for more information.  GPIO port E needs to be enabled
-    // so these pins can be used.
-    //
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
-
-    //
-    // Select the analog ADC function for these pins.
-    // Consult the data sheet to see which functions are allocated per pin.
-    //
-    GPIOPinTypeADC(GPIO_PORTE_BASE, GPIO_PIN_3 | GPIO_PIN_2 | GPIO_PIN_1
-                   | GPIO_PIN_0);
-
-    //
-    // Enable sample sequence 0 with a processor signal trigger.  Sequence 0
-    // will do a single sample when the processor sends a signal to start the
-    // conversion.  Each ADC module has 4 programmable sequences, sequence 0
-    // to sequence 3.  This example is arbitrarily using sequence 0.
-    //
-    ADCSequenceConfigure(ADC0_BASE, 0, ADC_TRIGGER_PROCESSOR, 0);
-
-    //
-    // Configure step 0 on sequence 0.  Sample channel 0 (ADC_CTL_CH0) in
-    // single-ended mode (default) and configure the interrupt flag
-    // (ADC_CTL_IE) to be set when the sample is done.  Tell the ADC logic
-    // that this is the last conversion on sequence 3 (ADC_CTL_END).  Sequence
-    // 3 has only one programmable step.  Sequence 1 and 2 have 4 steps, and
-    // sequence 0 has 8 programmable steps.  Since we are only doing a single
-    // conversion using sequence 3 we will only configure step 0.  For more
-    // information on the ADC sequences and steps, reference the datasheet.
-    //
-
-//    ROM_ADCSequenceStepConfigure(ADC0_BASE, 0, 0, ADC_CTL_CH0 | ADC_CTL_IE | ADC_CTL_END);
-
-    ADCSequenceStepConfigure(ADC0_BASE, 0, 0, ADC_CTL_CH0 | ADC_CTL_IE);
-    ADCSequenceStepConfigure(ADC0_BASE, 0, 1, ADC_CTL_CH1 | ADC_CTL_IE);
-    ADCSequenceStepConfigure(ADC0_BASE, 0, 2, ADC_CTL_CH2 | ADC_CTL_IE);
-    ADCSequenceStepConfigure(ADC0_BASE, 0, 3, ADC_CTL_CH3 | ADC_CTL_IE | ADC_CTL_END);
-
-    //
-    // Since sample sequence 0 is now configured, it must be enabled.
-    //
-    ADCSequenceEnable(ADC0_BASE, 0);
-
-    //
-    // Clear the interrupt status flag.  This is done to make sure the
-    // interrupt flag is cleared before we sample.
-    //
-    ADCIntClear(ADC0_BASE, 0);
-
-    StartLogging();
+    while(!StartLogging())
+    {
+    }
 
 }

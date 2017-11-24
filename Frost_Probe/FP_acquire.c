@@ -10,6 +10,7 @@
 #include <time.h>
 #include <stdio.h>
 #include "driverlib/adc.h"
+#include "driverlib/debug.h"
 #include "inc/hw_memmap.h"
 #include "inc/hw_ints.h"
 #include "driverlib/gpio.h"
@@ -17,6 +18,7 @@
 #include "driverlib/interrupt.h"
 #include "driverlib/uart.h"
 #include "driverlib/pin_map.h"
+#include "driverlib/sw_crc.h"
 #include "utils/uartstdio.h"
 #include "utils/ustdlib.h"
 #include "driverlib/sysctl.h"
@@ -24,28 +26,117 @@
 #include "FP_acquire.h"
 
 
-static uint32_t RTCMatchPeriod[1440], SamplePeriod, SamplesPerDay, MeasurementsPerSample;
-static volatile uint32_t RTCIntCounter = 0, TimerIntCounter;     // counts number of RTC interrupts for measurement scheduling
+static volatile uint32_t RTCIntCounter = 0, TimerIntCounter = 0;     // counts number of RTC interrupts for measurement scheduling
+tCfgState ConfigState;
 
+// This function is called when the timer sends an interrupt.
+void
+Timer0Handler(void)
+{
+//    struct tm TimeStamp;            // holds RTC timestamp seconds
+//    uint32_t TimeStampSS;           // holds RTC timestamp subseconds
+    uint32_t pui32ADC0Value[8];     // buffer for ADC data
+
+    TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
+
+    IntDisable(INT_TIMER0A);
+
+    ADCProcessorTrigger(ADC0_BASE, 0);  // Trigger the ADC conversion.
+
+    // Wait for conversion to be completed.
+    while(!ADCIntStatus(ADC0_BASE, 0, false))
+    {
+    }
+
+    ADCIntClear(ADC0_BASE, 0);  // Clear the ADC interrupt flag.
+
+    ADCSequenceDataGet(ADC0_BASE, 0, pui32ADC0Value);       // Read ADC Value.
+
+    // This output gets about 600 Hz
+    UARTprintf("%03i, %4d\n", HibernateRTCSSGet(), pui32ADC0Value[0]);
+
+    // This one is maybe faster
+    // Result (not waiting for ADC) = 1638.4 Hz
+//    UARTprintf("%05i\n", HibernateRTCSSGet());
+
+    TimerIntCounter++;
+    if( TimerIntCounter <= ConfigState.MeasurementsPerSample)
+    {
+        IntEnable(INT_TIMER0A);
+    }
+}
+
+bool
+RTCHandler(void)
+{
+    uint32_t ui32Status, RTCWakeTime;
+
+    ui32Status = HibernateIntStatus(1);
+    HibernateIntClear(ui32Status);
+    while(!GetHibData( &ConfigState ))
+    {
+    }
+    RTCWakeTime = HibernateRTCGet();
+
+
+    // Set up the ADC
+    while(!ADCSetup())
+    {
+    }
+    UARTprintf("The ADC is set up!\n");
+    UARTprintf("MeasPeriod: %i\n", ConfigState.MeasPeriod);
+    UARTprintf("Meas per Sample: %i\n", ConfigState.MeasurementsPerSample);
+    UARTprintf("Time [us], CH0\n");
+
+    // Set up the Timer interrupt shit
+    TimerIntCounter = 0;
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0);       // Enable timer 0
+    TimerConfigure(TIMER0_BASE, TIMER_CFG_PERIODIC);    // Configure as full-width
+    TimerClockSourceSet( TIMER0_BASE, TIMER_CLOCK_SYSTEM);
+    TimerLoadSet( TIMER0_BASE, TIMER_A, ConfigState.MeasPeriod);    // sets the timer interrupt period
+    TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
+    TimerEnable(TIMER0_BASE, TIMER_A);
+    IntEnable(INT_TIMER0A);
+
+//    UARTprintf("The timer should probably be working now\n");
+
+    ConfigState.RTCMatchCount++;    // Count which sample this is
+    if(RTCIntCounter <= ConfigState.SamplesPerDay)
+    {
+        HibernateRTCMatchSet(0, (ConfigState.RTCMatchPeriod[ConfigState.RTCMatchCount] + RTCWakeTime));
+    }
+    else
+    {
+        // something to handle roll-over to the next day
+    }
+
+    while(TimerIntCounter <= ConfigState.MeasurementsPerSample)
+    {
+//        UARTprintf("More samples to take.\n");
+    }
+    return(true);
+}
 
 // Function to get parameters from Main
-// The time at which each sample signal to
 bool
 AcquireSetup(uint32_t TimerClkFreq)
 {
-    uint32_t SampleFreq = 1,  ii, MaxInputLen = 10, SampleDuration = 1;
+    uint32_t SampleFreq = 1,  ii, MaxInputLen = 10, FirstMatch;
+    float SampleDuration = 1;
     struct tm tempSampleTime;           // temporary time structure for validity checks
     const char** endptr = 0;
     char uartBuf[10];
+//    TimerClkFreq = 32768;
 
-    UARTprintf("How many samples per day? (max 1440)\n");
+    UARTprintf("How many samples per day? (max 6)\n");
     UARTgets(uartBuf, MaxInputLen);
-    SamplesPerDay = ustrtoul(uartBuf, endptr, 10);
+    ConfigState.SamplesPerDay = 0;
+    ConfigState.SamplesPerDay = ustrtoul(uartBuf, endptr, 10);
 
     ulocaltime( HibernateRTCGet(), &tempSampleTime);    // load values to tm struct
-    for( ii = 1; ii <= SamplesPerDay; ii++)
+    for( ii = 1; ii <= ConfigState.SamplesPerDay; ii++)
     {
-        UARTprintf("When (HH:MM) should sample %i be taken? \n", ii);
+        UARTprintf("\nWhen (HH:MM) should sample %i be taken? \n", ii);
         UARTgets(uartBuf, MaxInputLen);
         char* token = strtok(uartBuf, ":");
         int hour = ustrtoul( token, endptr, 10);
@@ -53,9 +144,8 @@ AcquireSetup(uint32_t TimerClkFreq)
         token = strtok(NULL, ":");
         int min = ustrtoul( token, endptr, 10);
         tempSampleTime.tm_min = min;
+        tempSampleTime.tm_sec = 0;          // Samples start on the minute
 
-        UARTprintf("Sample Time: %i:%02i\n", tempSampleTime.tm_hour,
-                   tempSampleTime.tm_min);   // for debugging
         if( umktime( &tempSampleTime) == -1)
         {
             UARTprintf("Invalid time\n");
@@ -65,30 +155,31 @@ AcquireSetup(uint32_t TimerClkFreq)
         {
             if( ii == 1)
             {
-                RTCMatchPeriod[ii] = hour*3600 + min*60;      // time from midnight in seconds
+                ConfigState.RTCMatchPeriod[ii] = hour*3600 + min*60;      // time from midnight in seconds
+                FirstMatch = umktime( &tempSampleTime);
             }
             else
             {
                 // time from last sample
-                RTCMatchPeriod[ii] = hour*3600 + min*60 - RTCMatchPeriod[ii-1];
+                ConfigState.RTCMatchPeriod[ii] = hour*3600 + min*60 - ConfigState.RTCMatchPeriod[ii-1];
             }
         }
     }
 
     // Determine sample rate
-    UARTprintf("What sample rate (Hz) do you want?\n");
+    UARTprintf("\nWhat sample rate (Hz) do you want?\n");
     UARTgets( uartBuf, MaxInputLen);
     SampleFreq = ustrtoul( uartBuf, endptr, 10);
 
     // MeasFreq is in Hz. Converts to clock ticks.
     // 1 clock tick = 1/12500000 s
-    SamplePeriod = TimerClkFreq / SampleFreq;
+    ConfigState.MeasPeriod = TimerClkFreq / SampleFreq;
 
     // Determine sample duration
-    UARTprintf("Duration (sec) of sampling?\n");
+    UARTprintf("\nDuration (sec) of sampling?\n");
     UARTgets( uartBuf, MaxInputLen);
-    SampleDuration = ustrtoul( uartBuf, endptr, 10);
-    MeasurementsPerSample = SampleDuration / SamplePeriod;
+    SampleDuration = ustrtof( uartBuf, endptr);
+    ConfigState.MeasurementsPerSample = (SampleDuration * TimerClkFreq) / ConfigState.MeasPeriod;
 
     // set up the RTC interrupt shit.
     SysCtlPeripheralEnable(SYSCTL_PERIPH_HIBERNATE);       // Enable hibernate module
@@ -97,26 +188,33 @@ AcquireSetup(uint32_t TimerClkFreq)
     HibernateRTCEnable();               // Set the RTC running
 //    SetSavedState(&g_sConfigState);
     HibernateWakeSet(HIBERNATE_WAKE_PIN | HIBERNATE_WAKE_RTC);
+//    HibernateIntRegister(RTCHandler);
 
-    // Set first match
-    uint32_t FirstMatch = umktime( &tempSampleTime);
+    // Set first RTC match
     ii = 0;
     while(FirstMatch < HibernateRTCGet())
     {
-        FirstMatch += RTCMatchPeriod[ii];
+        FirstMatch += ConfigState.RTCMatchPeriod[ii];
         ii++;
     }
 
 
+    UARTprintf("\nMeasPeriod: %i\n", ConfigState.MeasPeriod);
+    UARTprintf("Measurements Per Sample: %i\n", ConfigState.MeasurementsPerSample);
     UARTprintf("Firstmatch: %i\n", FirstMatch);
+
     HibernateRTCMatchSet(0, FirstMatch);
 
+    // Save the configuration to Hib module
+    while(!SetHibData( &ConfigState ))
+    {
+    }
 
     return true;
 }
 
 // Start logging
-void
+bool
 StartLogging()
 {
     char uartBuf[10];
@@ -124,12 +222,11 @@ StartLogging()
     UARTprintf("To begin logging press ENTER\n");
     UARTgets(uartBuf, 2);
 
-    // Save the configuration to Hib module and then lights out
-//    SetSavedState(&g_sConfigState);     // gotta figure out this part still
     HibernateRequest();
     while(1)    // loop until it falls asleep
     {
     }
+    return true;    // Ha! Not possible. I'm sleeping now.
 }
 
 bool
@@ -196,78 +293,94 @@ ADCSetup()
 
 }
 
-
-// This function is called when the timer sends an interrupt.
-void
-TimerHandler(void)
+bool
+GetHibData( tCfgState* ConfigState)
 {
-    struct tm TimeStamp;            // holds RTC timestamp seconds
-    uint32_t TimeStampSS;           // holds RTC timestamp subseconds
-    uint32_t pui32ADC0Value[8];     // buffer for ADC data
+    uint32_t CfgStateLen;
+    uint16_t ui16Crc16;
 
-//    uint8_t interruptStatus;
-
-    TimerIntCounter++;
-
-    ADCProcessorTrigger(ADC0_BASE, 0);  // Trigger the ADC conversion.
-
-    // Wait for conversion to be completed.
-    while(!ADCIntStatus(ADC0_BASE, 0, false))
+    //
+    // Check the arguments
+    //
+    ASSERT(ConfigState);
+    if(!ConfigState)
     {
+        return(false);
     }
 
-    ADCIntClear(ADC0_BASE, 0);  // Clear the ADC interrupt flag.
+    // Initialize locals.
+    CfgStateLen = sizeof(tCfgState) / 4;
 
-    ADCSequenceDataGet(ADC0_BASE, 0, pui32ADC0Value);       // Read ADC Value.
+    // Read a block from hibernation memory into the application state
+    // structure.
+    HibernateDataGet((uint32_t *) ConfigState, CfgStateLen);
 
-    ulocaltime(HibernateRTCGet(), &TimeStamp);           // gets time from RTC and stores in a struct
-    TimeStampSS = HibernateRTCSSGet() * 1000 / 32768;  // gets subsecond value from RTC in ms
-
-    // Display timestamp
-    // possibly get rid of the minutes and seconds part for faster operation
-    UARTprintf("%i:%i.%i,",  TimeStamp.tm_min, TimeStamp.tm_sec, TimeStampSS);
-    // Display digital values for CH0 - CH3
-    UARTprintf("%4d, %4d, %4d, %4d\n", pui32ADC0Value[0], pui32ADC0Value[1],
-               pui32ADC0Value[2], pui32ADC0Value[3]);
-
-    if( TimerIntCounter > MeasurementsPerSample)
+    // Check first to see if the "cookie" value is correct.
+    if(ConfigState->Cookie != STATE_COOKIE)
     {
-        IntDisable(INT_TIMER0A);
+        return(false);
     }
+
+    // Find the 16-bit CRC of the block.  The CRC is stored in the last
+    // location, so subtract 1 word from the count.
+    ui16Crc16 = Crc16Array(CfgStateLen - 1, (const uint32_t *)ConfigState);
+
+    // If the CRC does not match, then the block is not good.
+    if(ConfigState->uiCRC != (uint32_t)ui16Crc16)
+    {
+        return(false);
+    }
+
+    // At this point the state structure that was retrieved from the
+    // battery backed memory has been validated, so return it as a valid
+    // logger state configuration.
+    return(true);
 }
 
-void
-RTCHandler(void)
+bool
+SetHibData( tCfgState* ConfigState)
 {
-    uint32_t ui32Status, RTCWakeTime;
+    uint32_t CfgStateLen;
+    uint16_t ui16Crc16;
 
-    ui32Status = HibernateIntStatus(1);
-    HibernateIntClear(ui32Status);
+    //
+    // Check the arguments
+    //
+    ASSERT(ConfigState);
 
-    RTCWakeTime = HibernateRTCGet();
+    // Initialize locals.
+    CfgStateLen = sizeof(tCfgState) / 4;
 
-    // Set up the display again
-
-
-    // Set up the ADC
-    while(!ADCSetup());
-
-    // Set up the Timer interrupt shit
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0);       // Enable timer 0
-    TimerConfigure(TIMER0_BASE, TIMER_CFG_PERIODIC);    // Configure as full-width
-    TimerLoadSet( TIMER0_BASE, TIMER_A, SamplePeriod);    // sets the timer interrupt period
-    IntEnable(INT_TIMER0A);
-    TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
-    TimerEnable(TIMER0_BASE, TIMER_A);
-
-
-    RTCIntCounter++;    // Count which sample this is
-    if(RTCIntCounter <= SamplesPerDay)
+    if(ConfigState)
     {
-        HibernateRTCMatchSet(0, (RTCMatchPeriod[RTCIntCounter] + RTCWakeTime));
+        //
+        // Write the cookie value to the block
+        //
+        ConfigState->Cookie = STATE_COOKIE;
+
+        //
+        // Find the 16-bit CRC of the block.  The CRC is stored in the last
+        // location, so subtract 1 word from the count.
+        //
+        ui16Crc16 = Crc16Array(CfgStateLen - 1,
+                                   (const uint32_t *)ConfigState);
+
+        //
+        // Save the computed CRC into the structure.
+        //
+        ConfigState->uiCRC = (uint32_t)ui16Crc16;
+
+        //
+        // Now write the entire block to the Hibernate memory.
+        //
+        HibernateDataSet((uint32_t *)ConfigState, CfgStateLen);
+
+        // We saved it (to the hibernate module)!
+        return(true);
+
     }
     else
     {
-        // something to handle roll-over to the next day
+        return(false);
     }
 }

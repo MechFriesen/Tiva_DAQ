@@ -14,8 +14,23 @@ extern "C"
 
 extern struct tm RealTime;
 
-//extern struct
+typedef struct
+{
+    uint32_t Cookie;                // Cookie
+    uint32_t MeasPeriod;            // inverse of sample rate
+    uint32_t RTCMatchPeriod[6];     // seconds until next RTC match
+    uint32_t SamplesPerDay;         // number of samples per day
+    uint32_t MeasurementsPerSample; // number of measurements in a sample
+    uint32_t RTCMatchCount;         // number of RTC matches
+    uint32_t uiCRC;                 // Checksum
+}
+tCfgState;
+
+#define STATE_COOKIE            0x0355AAC0
 
 extern bool AcquireSetup(uint32_t TimerClkFreq);
-extern void StartLogging( void );
+extern bool StartLogging( void );
 extern bool ADCSetup( void );
+extern bool RTCHandler( void);
+extern bool GetHibData( tCfgState *ConfigState);
+extern bool SetHibData( tCfgState *ConfigState);
