@@ -208,7 +208,6 @@ main(void)
     // Checks if the the wake-up is due to an RTC match
     // if so, we go to the RTC handler in FP_acquire
     uint32_t ui32Status = HibernateIntStatus(0);
-    uint32_t isRTCWake = ui32Status & 0x00000001;
 
     if(ui32Status & 0x00000001)
     {
