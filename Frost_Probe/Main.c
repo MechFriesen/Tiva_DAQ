@@ -183,30 +183,17 @@ int
 main(void)
 {
 
-//    struct tm TimeStamp;
-
-    //
-    // This array is used for storing the data read from the ADC FIFO. Sequencer
-    // 0 has a FIFO of 8 32-bit words.
-    //
-//    uint32_t pui32ADC0Value[8];
-
-    //
-    // Set the clocking to run at 20 MHz (200 MHz / 10) using the PLL.  When
-    // using the ADC, you must either use the PLL or supply a 16 MHz clock
-    // source.
-    //
-    ROM_SysCtlClockSet(SYSCTL_SYSDIV_1 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN |
+    // Set the system clock to run at 50 MHz (200 MHz from PLL / 4)
+    SysCtlClockSet(SYSCTL_SYSDIV_4 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN |
                    SYSCTL_XTAL_16MHZ);
 
     //
-    // Set up the serial console to use for displaying messages.  This is
-    // just for this example program and is not needed for ADC operation.
-    //
+    // Set up the serial console to use for displaying messages. This is used
+    // for setup and currently data output (SD card saving is WIP)
     InitConsole();
 
-    // Checks if the the wake-up is due to an RTC match
-    // if so, we go to the RTC handler in FP_acquire
+    // Checks if the the wake-up is due to an RTC match.
+    // If so, we go to the RTC handler in FP_acquire
     uint32_t ui32Status = HibernateIntStatus(0);
 
     if(ui32Status & 0x00000001)
@@ -214,28 +201,25 @@ main(void)
         while(!RTCHandler())
         {
         }
-        while(!StartLogging())
+        UARTprintf("Goodnight...");
+        HibernateRequest();
+        while(1)    // loop until it falls asleep
         {
         }
     }
 
-    //
     // Setup the RTC for hibernate and acquisition time
-    //
     while(!RTCSetup())
     {
     }
 
-    //
     // Display the RTC time and let user set current time
-    //
     while(!SysTimeSet())
     {
     }
 
     // Setup the ADC and RTC interrupts
-    int SystemClock = SysCtlClockGet();
-    while(!AcquireSetup( SystemClock))
+    while(!AcquireSetup())
     {
     }
 

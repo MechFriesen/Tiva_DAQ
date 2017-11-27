@@ -33,34 +33,28 @@ tCfgState ConfigState;
 void
 Timer0Handler(void)
 {
-//    struct tm TimeStamp;            // holds RTC timestamp seconds
-//    uint32_t TimeStampSS;           // holds RTC timestamp subseconds
-    uint32_t pui32ADC0Value[8];     // buffer for ADC data
+    uint32_t pui32ADC0Value;     // buffer for ADC data
 
     TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
 
+    // Disable timer interrupts while the measurement is handled
     IntDisable(INT_TIMER0A);
 
-    ADCProcessorTrigger(ADC0_BASE, 0);  // Trigger the ADC conversion.
+    //  Trigger the ADC conversion.
+    ADCProcessorTrigger(ADC0_BASE, 3);
 
     // Wait for conversion to be completed.
-    while(!ADCIntStatus(ADC0_BASE, 0, false))
+    while(!ADCIntStatus(ADC0_BASE, 3, false))
     {
     }
 
-    ADCIntClear(ADC0_BASE, 0);  // Clear the ADC interrupt flag.
-
-    ADCSequenceDataGet(ADC0_BASE, 0, pui32ADC0Value);       // Read ADC Value.
-
-    // This output gets about 600 Hz
-    UARTprintf("%03i, %4d\n", HibernateRTCSSGet(), pui32ADC0Value[0]);
-
-    // This one is maybe faster
-    // Result (not waiting for ADC) = 1638.4 Hz
-//    UARTprintf("%05i\n", HibernateRTCSSGet());
+    ADCIntClear(ADC0_BASE, 3);  // Clear the ADC interrupt flag.
 
     TimerIntCounter++;
-    if( TimerIntCounter <= ConfigState.MeasurementsPerSample)
+    ADCSequenceDataGet(ADC0_BASE, 3, &pui32ADC0Value);       // Read ADC Value.
+    UARTprintf("%5i, %05i\n", TimerIntCounter, HibernateRTCSSGet()); // Output data to Serial
+
+    if( TimerIntCounter < ConfigState.MeasurementsPerSample)
     {
         IntEnable(INT_TIMER0A);
     }
@@ -69,69 +63,87 @@ Timer0Handler(void)
 bool
 RTCHandler(void)
 {
-    uint32_t ui32Status, RTCWakeTime;
-
+    uint32_t ui32Status, RTCWakeTime, NextMatch;
+    struct tm tempDayRollover;
+    // Clear interrupts
     ui32Status = HibernateIntStatus(1);
     HibernateIntClear(ui32Status);
+
+    // Retrieve settings from hibernation memory
     while(!GetHibData( &ConfigState ))
     {
     }
-    RTCWakeTime = HibernateRTCGet();
 
+    // Get the time
+    RTCWakeTime = HibernateRTCGet();
 
     // Set up the ADC
     while(!ADCSetup())
     {
     }
-    UARTprintf("The ADC is set up!\n");
-    UARTprintf("MeasPeriod: %i\n", ConfigState.MeasPeriod);
-    UARTprintf("Meas per Sample: %i\n", ConfigState.MeasurementsPerSample);
-    UARTprintf("Time [us], CH0\n");
+
+    UARTprintf("Sample Number, RTC Time, SS Time [1/32768 s], CH0\n");
 
     // Set up the Timer interrupt shit
     TimerIntCounter = 0;
+    IntRegister( INT_TIMER0A, Timer0Handler);           // Set Timer0Handler to handle timer interrupts
     SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0);       // Enable timer 0
     TimerConfigure(TIMER0_BASE, TIMER_CFG_PERIODIC);    // Configure as full-width
-    TimerClockSourceSet( TIMER0_BASE, TIMER_CLOCK_SYSTEM);
+    TimerClockSourceSet( TIMER0_BASE, TIMER_CLOCK_SYSTEM);  // Sets the clock for the module to use
     TimerLoadSet( TIMER0_BASE, TIMER_A, ConfigState.MeasPeriod);    // sets the timer interrupt period
-    TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
-    TimerEnable(TIMER0_BASE, TIMER_A);
-    IntEnable(INT_TIMER0A);
+    TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);    // Enable the interrupt generation
+    IntEnable(INT_TIMER0A);     // Enable the interrupt handling
+    TimerEnable(TIMER0_BASE, TIMER_A);      // Start the timer
 
-//    UARTprintf("The timer should probably be working now\n");
-
-    ConfigState.RTCMatchCount++;    // Count which sample this is
-    if(RTCIntCounter <= ConfigState.SamplesPerDay)
+    while(TimerIntCounter != ConfigState.MeasurementsPerSample)
     {
-        HibernateRTCMatchSet(0, (ConfigState.RTCMatchPeriod[ConfigState.RTCMatchCount] + RTCWakeTime));
+        // hang here until the required measurements are taken
+    }
+
+    UARTprintf("Finished the measurements for this sample.\n");
+
+    // Set the RTC time for the next sample to be taken
+    ConfigState.RTCMatchCount++;    // Count which sample this is
+    if(ConfigState.RTCMatchCount <= ConfigState.SamplesPerDay)
+    {
+        NextMatch = ConfigState.RTCMatchPeriod[ConfigState.RTCMatchCount] + RTCWakeTime;
+        HibernateRTCMatchSet(0, NextMatch);
+
+        // Debugging output
+        UARTprintf("Next Match (match %i): %i\n", ConfigState.RTCMatchCount, NextMatch);
     }
     else
     {
         // something to handle roll-over to the next day
+        ulocaltime( RTCWakeTime, &tempDayRollover);
+        tempDayRollover.tm_yday++;
+        (umktime( &tempDayRollover ) != -1) ? NextMatch = umktime( &tempDayRollover )
+                : tempDayRollover.tm_yday++ ;
+        NextMatch = umktime( &tempDayRollover );
+
+        // for debugging
+        UARTprintf("Next Match (match %i): %i\n", ConfigState.RTCMatchCount, NextMatch);
     }
 
-    while(TimerIntCounter <= ConfigState.MeasurementsPerSample)
-    {
-//        UARTprintf("More samples to take.\n");
-    }
     return(true);
 }
 
-// Function to get parameters from Main
+// Function to get parameters from user
 bool
-AcquireSetup(uint32_t TimerClkFreq)
+AcquireSetup()
 {
-    uint32_t SampleFreq = 1,  ii, MaxInputLen = 10, FirstMatch;
+    uint32_t SampleFreq = 1,  ii, MaxInputLen = 10, FirstMatch = 0;
+    uint32_t TimerClkFreq = SysCtlClockGet();
     float SampleDuration = 1;
-    struct tm tempSampleTime;           // temporary time structure for validity checks
-    const char** endptr = 0;
-    char uartBuf[10];
-//    TimerClkFreq = 32768;
+    struct tm tempSampleTime;   // temporary time structure for validity checks
+    const char** endptr = 0;    // useless little pointer that ustrtoul needs to feel good about itself
+    char uartBuf[10];           // Buffer for text from serial
 
-    UARTprintf("How many samples per day? (max 6)\n");
+    UARTprintf("How many samples per day? (max 12)\n");
     UARTgets(uartBuf, MaxInputLen);
     ConfigState.SamplesPerDay = 0;
     ConfigState.SamplesPerDay = ustrtoul(uartBuf, endptr, 10);
+    UARTprintf("SamplesPerDay: %i\n", ConfigState.SamplesPerDay);
 
     ulocaltime( HibernateRTCGet(), &tempSampleTime);    // load values to tm struct
     for( ii = 1; ii <= ConfigState.SamplesPerDay; ii++)
@@ -139,7 +151,7 @@ AcquireSetup(uint32_t TimerClkFreq)
         UARTprintf("\nWhen (HH:MM) should sample %i be taken? \n", ii);
         UARTgets(uartBuf, MaxInputLen);
         char* token = strtok(uartBuf, ":");
-        int hour = ustrtoul( token, endptr, 10);
+        int hour = ustrtoul( token, endptr, 10) % 24;
         tempSampleTime.tm_hour = hour;
         token = strtok(NULL, ":");
         int min = ustrtoul( token, endptr, 10);
@@ -153,16 +165,10 @@ AcquireSetup(uint32_t TimerClkFreq)
         }
         else
         {
-            if( ii == 1)
-            {
-                ConfigState.RTCMatchPeriod[ii] = hour*3600 + min*60;      // time from midnight in seconds
-                FirstMatch = umktime( &tempSampleTime);
-            }
-            else
-            {
-                // time from last sample
-                ConfigState.RTCMatchPeriod[ii] = hour*3600 + min*60 - ConfigState.RTCMatchPeriod[ii-1];
-            }
+            ConfigState.RTCMatchPeriod[ii] = hour*60 + min;      // time from midnight in minutes
+
+            // for debugging
+            UARTprintf("RTCMatchPeriod %i: %i\n", ii, ConfigState.RTCMatchPeriod[ii]);
         }
     }
 
@@ -192,9 +198,9 @@ AcquireSetup(uint32_t TimerClkFreq)
 
     // Set first RTC match
     ii = 0;
-    while(FirstMatch < HibernateRTCGet())
+    while(FirstMatch < HibernateRTCGet() && ii < ConfigState.SamplesPerDay)
     {
-        FirstMatch += ConfigState.RTCMatchPeriod[ii];
+        FirstMatch = RTCMatchGenerate( ConfigState.RTCMatchPeriod[ii]);
         ii++;
     }
 
@@ -211,6 +217,27 @@ AcquireSetup(uint32_t TimerClkFreq)
     }
 
     return true;
+}
+
+// Generates an RTC match value given minutes from midnight
+uint32_t
+RTCMatchGenerate( uint16_t MinutesSinceMidnight)
+{
+    struct tm MatchTime;
+    uint32_t MatchSeconds, PresentTime = HibernateRTCGet();
+    ulocaltime( PresentTime, &MatchTime);
+    MatchTime.tm_hour = MinutesSinceMidnight / 60;
+    MatchTime.tm_min = MinutesSinceMidnight % 60;
+    MatchTime.tm_sec = 0;
+    MatchSeconds = umktime( &MatchTime);
+    if( MatchSeconds == -1 )
+    {
+        UARTprintf("Invalid RTC match time\n");
+    }
+    else
+    {
+        return MatchSeconds;
+    }
 }
 
 // Start logging
@@ -256,9 +283,9 @@ ADCSetup()
     // Enable sample sequence 0 with a processor signal trigger.  Sequence 0
     // will do a single sample when the processor sends a signal to start the
     // conversion.  Each ADC module has 4 programmable sequences, sequence 0
-    // to sequence 3.  This example is arbitrarily using sequence 0.
+    // to sequence 3.  This example is arbitrarily using sequence 1.
     //
-    ADCSequenceConfigure(ADC0_BASE, 0, ADC_TRIGGER_PROCESSOR, 0);
+    ADCSequenceConfigure(ADC0_BASE, 3, ADC_TRIGGER_PROCESSOR, 0);
 
     //
     // Configure step 0 on sequence 0.  Sample channel 0 (ADC_CTL_CH0) in
@@ -271,23 +298,23 @@ ADCSetup()
     // information on the ADC sequences and steps, reference the datasheet.
     //
 
-//    ROM_ADCSequenceStepConfigure(ADC0_BASE, 0, 0, ADC_CTL_CH0 | ADC_CTL_IE | ADC_CTL_END);
+    ADCSequenceStepConfigure(ADC0_BASE, 3, 0, ADC_CTL_CH0 | ADC_CTL_IE | ADC_CTL_END);
 
-    ADCSequenceStepConfigure(ADC0_BASE, 0, 0, ADC_CTL_CH0 | ADC_CTL_IE);
-    ADCSequenceStepConfigure(ADC0_BASE, 0, 1, ADC_CTL_CH1 | ADC_CTL_IE);
-    ADCSequenceStepConfigure(ADC0_BASE, 0, 2, ADC_CTL_CH2 | ADC_CTL_IE);
-    ADCSequenceStepConfigure(ADC0_BASE, 0, 3, ADC_CTL_CH3 | ADC_CTL_IE | ADC_CTL_END);
+//    ADCSequenceStepConfigure(ADC0_BASE, 1, 0, ADC_CTL_CH0 | ADC_CTL_IE);
+//    ADCSequenceStepConfigure(ADC0_BASE, 1, 1, ADC_CTL_CH1 | ADC_CTL_IE);
+//    ADCSequenceStepConfigure(ADC0_BASE, 1, 2, ADC_CTL_CH2 | ADC_CTL_IE);
+//    ADCSequenceStepConfigure(ADC0_BASE, 1, 3, ADC_CTL_CH3 | ADC_CTL_IE | ADC_CTL_END);
 
     //
     // Since sample sequence 0 is now configured, it must be enabled.
     //
-    ADCSequenceEnable(ADC0_BASE, 0);
+    ADCSequenceEnable(ADC0_BASE, 3);
 
     //
     // Clear the interrupt status flag.  This is done to make sure the
     // interrupt flag is cleared before we sample.
     //
-    ADCIntClear(ADC0_BASE, 0);
+    ADCIntClear(ADC0_BASE, 3);
 
     return 1;
 
