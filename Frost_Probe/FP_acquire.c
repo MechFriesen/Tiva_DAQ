@@ -33,7 +33,7 @@ tCfgState ConfigState;
 void
 Timer0Handler(void)
 {
-    uint32_t pui32ADC0Value;     // buffer for ADC data
+    uint32_t pui32ADC0Value[4];     // buffer for ADC data
 
     TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
 
@@ -41,18 +41,20 @@ Timer0Handler(void)
     IntDisable(INT_TIMER0A);
 
     //  Trigger the ADC conversion.
-    ADCProcessorTrigger(ADC0_BASE, 3);
+    ADCProcessorTrigger(ADC0_BASE, 1);
 
     // Wait for conversion to be completed.
-    while(!ADCIntStatus(ADC0_BASE, 3, false))
+    while(!ADCIntStatus(ADC0_BASE, 1, false))
     {
     }
 
-    ADCIntClear(ADC0_BASE, 3);  // Clear the ADC interrupt flag.
+    ADCIntClear(ADC0_BASE, 1);  // Clear the ADC interrupt flag.
 
     TimerIntCounter++;
-    ADCSequenceDataGet(ADC0_BASE, 3, &pui32ADC0Value);       // Read ADC Value.
-    UARTprintf("%5i, %05i\n", TimerIntCounter, HibernateRTCSSGet()); // Output data to Serial
+    ADCSequenceDataGet(ADC0_BASE, 1, &pui32ADC0Value);       // Read ADC Value.
+
+    //Output data to serial console
+    UARTprintf("%5i, %05i, %4i", TimerIntCounter, HibernateRTCSSGet(), pui32ADC0Value[1]); // Output data to Serial
 
     if( TimerIntCounter < ConfigState.MeasurementsPerSample)
     {
@@ -82,7 +84,7 @@ RTCHandler(void)
     {
     }
 
-    UARTprintf("Sample Number, RTC Time, SS Time [1/32768 s], CH0\n");
+    UARTprintf("Sample Number, RTC subseconds [1/32768 s], CH0\n");
 
     // Set up the Timer interrupt shit
     TimerIntCounter = 0;
@@ -136,12 +138,12 @@ AcquireSetup()
     uint32_t TimerClkFreq = SysCtlClockGet();
     float SampleDuration = 1;
     struct tm tempSampleTime;   // temporary time structure for validity checks
-    const char** endptr = 0;    // useless little pointer that ustrtoul needs to feel good about itself
-    char uartBuf[10];           // Buffer for text from serial
+    const char** endptr = ' ';  // useless little pointer that ustrtoul needs to feel good about itself
+    char uartBuf[10] = {"\0"};  // Buffer for text from serial
 
     UARTprintf("How many samples per day? (max 12)\n");
     UARTgets(uartBuf, MaxInputLen);
-    ConfigState.SamplesPerDay = 0;
+//    ConfigState.SamplesPerDay = 0;
     ConfigState.SamplesPerDay = ustrtoul(uartBuf, endptr, 10);
     UARTprintf("SamplesPerDay: %i\n", ConfigState.SamplesPerDay);
 
@@ -158,7 +160,7 @@ AcquireSetup()
         tempSampleTime.tm_min = min;
         tempSampleTime.tm_sec = 0;          // Samples start on the minute
 
-        if( umktime( &tempSampleTime) == -1)
+        if( umktime( &tempSampleTime) == -1 )
         {
             UARTprintf("Invalid time\n");
             ii--;
@@ -224,7 +226,8 @@ uint32_t
 RTCMatchGenerate( uint16_t MinutesSinceMidnight)
 {
     struct tm MatchTime;
-    uint32_t MatchSeconds, PresentTime = HibernateRTCGet();
+    uint32_t PresentTime = HibernateRTCGet();
+    int32_t MatchSeconds;
     ulocaltime( PresentTime, &MatchTime);
     MatchTime.tm_hour = MinutesSinceMidnight / 60;
     MatchTime.tm_min = MinutesSinceMidnight % 60;
@@ -233,6 +236,7 @@ RTCMatchGenerate( uint16_t MinutesSinceMidnight)
     if( MatchSeconds == -1 )
     {
         UARTprintf("Invalid RTC match time\n");
+        return(-1);
     }
     else
     {
@@ -285,36 +289,28 @@ ADCSetup()
     // conversion.  Each ADC module has 4 programmable sequences, sequence 0
     // to sequence 3.  This example is arbitrarily using sequence 1.
     //
-    ADCSequenceConfigure(ADC0_BASE, 3, ADC_TRIGGER_PROCESSOR, 0);
+    ADCSequenceConfigure(ADC0_BASE, 1, ADC_TRIGGER_PROCESSOR, 0);
 
-    //
-    // Configure step 0 on sequence 0.  Sample channel 0 (ADC_CTL_CH0) in
+    // Configure steps 1-4 on sequence 1.  Sample channel 0 (ADC_CTL_CH0) in
     // single-ended mode (default) and configure the interrupt flag
-    // (ADC_CTL_IE) to be set when the sample is done.  Tell the ADC logic
-    // that this is the last conversion on sequence 3 (ADC_CTL_END).  Sequence
-    // 3 has only one programmable step.  Sequence 1 and 2 have 4 steps, and
-    // sequence 0 has 8 programmable steps.  Since we are only doing a single
-    // conversion using sequence 3 we will only configure step 0.  For more
-    // information on the ADC sequences and steps, reference the datasheet.
-    //
+    // (ADC_CTL_IE) to be set when the measurement is done.  Tell the ADC logic
+    // that this is the last conversion on sequence 1 (ADC_CTL_END).
 
-    ADCSequenceStepConfigure(ADC0_BASE, 3, 0, ADC_CTL_CH0 | ADC_CTL_IE | ADC_CTL_END);
-
-//    ADCSequenceStepConfigure(ADC0_BASE, 1, 0, ADC_CTL_CH0 | ADC_CTL_IE);
-//    ADCSequenceStepConfigure(ADC0_BASE, 1, 1, ADC_CTL_CH1 | ADC_CTL_IE);
-//    ADCSequenceStepConfigure(ADC0_BASE, 1, 2, ADC_CTL_CH2 | ADC_CTL_IE);
-//    ADCSequenceStepConfigure(ADC0_BASE, 1, 3, ADC_CTL_CH3 | ADC_CTL_IE | ADC_CTL_END);
+    ADCSequenceStepConfigure(ADC0_BASE, 1, 0, ADC_CTL_CH0);
+    ADCSequenceStepConfigure(ADC0_BASE, 1, 1, ADC_CTL_CH1);
+    ADCSequenceStepConfigure(ADC0_BASE, 1, 2, ADC_CTL_CH2);
+    ADCSequenceStepConfigure(ADC0_BASE, 1, 3, ADC_CTL_CH3 | ADC_CTL_IE | ADC_CTL_END);
 
     //
     // Since sample sequence 0 is now configured, it must be enabled.
     //
-    ADCSequenceEnable(ADC0_BASE, 3);
+    ADCSequenceEnable(ADC0_BASE, 1);
 
     //
     // Clear the interrupt status flag.  This is done to make sure the
     // interrupt flag is cleared before we sample.
     //
-    ADCIntClear(ADC0_BASE, 3);
+    ADCIntClear(ADC0_BASE, 1);
 
     return 1;
 
