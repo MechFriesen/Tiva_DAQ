@@ -28,12 +28,33 @@
 
 static volatile uint32_t RTCIntCounter = 0, TimerIntCounter = 0;     // counts number of RTC interrupts for measurement scheduling
 tCfgState ConfigState;
+static const char * const g_pcHex = "0123456789abcdef";
+
+// A function for formatting serial output that's faster than UARTprintf (hopefully)
+uint32_t
+itoc( char * bufferString, uint32_t outValue)
+{
+    uint32_t Idx = 1, charCount = 1, jj;
+    while(((Idx * 10) <= outValue) && (((Idx * 10) / 10) == Idx))
+    {
+        Idx *= 10;
+        charCount++;
+    }
+
+    for( jj = 0; jj < charCount; jj++)
+    {
+        bufferString[jj] = g_pcHex[(outValue / Idx) % 10];
+        Idx /= 10;
+    }
+    return charCount;
+}
 
 // This function is called when the timer sends an interrupt.
 void
 Timer0Handler(void)
 {
-    uint32_t pui32ADC0Value[4];     // buffer for ADC data
+    uint32_t pui32ADC0Value, intValue, charCount;    // buffer for ADC data
+    char TimeString[10] = '\0', ADCString[10] = '\0';         // buffer for serial output
 
     TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
 
@@ -54,8 +75,24 @@ Timer0Handler(void)
     ADCSequenceDataGet(ADC0_BASE, 1, &pui32ADC0Value);       // Read ADC Value.
 
     //Output data to serial console
-    UARTprintf("%5i, %05i, %4i", TimerIntCounter, HibernateRTCSSGet(), pui32ADC0Value[1]); // Output data to Serial
+//    UARTprintf("%5i, %05i, %4i\n", TimerIntCounter, HibernateRTCSSGet(), pui32ADC0Value[1]); // Output data to Serial
 
+    //
+    // Maybe a faster output to serial
+    //
+    intValue = 547; // for debugging
+
+    // Print RTC sub-seconds
+    charCount = itoc( TimeString, HibernateRTCSSGet());
+    TimeString[charCount++] = ',';
+    UARTwrite( TimeString, charCount + 1);
+
+    // Convert ADC reading
+    charCount = itoc( ADCString, intValue);    // change to pui32ADC0Value post-debug
+    ADCString[charCount++] = '\n';
+    UARTwrite( ADCString, charCount + 1);
+
+    // Reset the timer interrupt
     if( TimerIntCounter < ConfigState.MeasurementsPerSample)
     {
         IntEnable(INT_TIMER0A);
@@ -194,9 +231,7 @@ AcquireSetup()
     HibernateEnableExpClk(SysCtlClockGet());
     HibernateRTCTrimSet(0x7FFF);        // Apparently needed per silicon erratum 2.1
     HibernateRTCEnable();               // Set the RTC running
-//    SetSavedState(&g_sConfigState);
     HibernateWakeSet(HIBERNATE_WAKE_PIN | HIBERNATE_WAKE_RTC);
-//    HibernateIntRegister(RTCHandler);
 
     // Set first RTC match
     ii = 0;
@@ -296,10 +331,12 @@ ADCSetup()
     // (ADC_CTL_IE) to be set when the measurement is done.  Tell the ADC logic
     // that this is the last conversion on sequence 1 (ADC_CTL_END).
 
-    ADCSequenceStepConfigure(ADC0_BASE, 1, 0, ADC_CTL_CH0);
-    ADCSequenceStepConfigure(ADC0_BASE, 1, 1, ADC_CTL_CH1);
-    ADCSequenceStepConfigure(ADC0_BASE, 1, 2, ADC_CTL_CH2);
-    ADCSequenceStepConfigure(ADC0_BASE, 1, 3, ADC_CTL_CH3 | ADC_CTL_IE | ADC_CTL_END);
+    ADCSequenceStepConfigure(ADC0_BASE, 1, 0, ADC_CTL_CH0 | ADC_CTL_IE | ADC_CTL_END);
+
+//    ADCSequenceStepConfigure(ADC0_BASE, 1, 0, ADC_CTL_CH0);
+//    ADCSequenceStepConfigure(ADC0_BASE, 1, 1, ADC_CTL_CH1);
+//    ADCSequenceStepConfigure(ADC0_BASE, 1, 2, ADC_CTL_CH2);
+//    ADCSequenceStepConfigure(ADC0_BASE, 1, 3, ADC_CTL_CH3 | ADC_CTL_IE | ADC_CTL_END);
 
     //
     // Since sample sequence 0 is now configured, it must be enabled.

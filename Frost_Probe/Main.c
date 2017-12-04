@@ -1,42 +1,7 @@
 //*****************************************************************************
 //
-// single_ended.c - Example demonstrating how to configure the ADC for
-//                  single ended operation.
-//
-// Copyright (c) 2010-2016 Texas Instruments Incorporated.  All rights reserved.
-// Software License Agreement
-// 
-//   Redistribution and use in source and binary forms, with or without
-//   modification, are permitted provided that the following conditions
-//   are met:
-// 
-//   Redistributions of source code must retain the above copyright
-//   notice, this list of conditions and the following disclaimer.
-// 
-//   Redistributions in binary form must reproduce the above copyright
-//   notice, this list of conditions and the following disclaimer in the
-//   documentation and/or other materials provided with the  
-//   distribution.
-// 
-//   Neither the name of Texas Instruments Incorporated nor the names of
-//   its contributors may be used to endorse or promote products derived
-//   from this software without specific prior written permission.
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
-// This is part of revision 2.1.3.156 of the Tiva Firmware Development Package.
-//
-//*****************************************************************************
+// Main.c - A program for logging data from an analog channel to an SD
+//          card (PC via serial for debugging)
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -49,8 +14,6 @@
 #include "driverlib/pin_map.h"
 #include "driverlib/uart.h"
 #include "utils/uartstdio.h"
-
-//// libs for hibernation and RTC
 #include <time.h>
 #include "driverlib/fpu.h"
 #include "driverlib/hibernate.h"
@@ -62,49 +25,14 @@
 #include "datetimeset.h"
 #include "grlib/grlib.h"
 #include "FP_acquire.h"
-//#include "drivers/cfal96x64x16.h"
-//#include "drivers/buttons.h"
-//*****************************************************************************
-//
-//! \addtogroup adc_examples_list
-//! <h1>Single Ended ADC (single_ended)</h1>
-//!
-//! This example shows how to setup ADC0 as a single ended input and take a
-//! single sample on AIN0/PE3.
-//!
-//! This example uses the following peripherals and I/O signals.  You must
-//! review these and change as needed for your own board:
-//! - ADC0 peripheral
-//! - GPIO Port E peripheral (for AIN0 pin)
-//! - AIN0 - PE3
-//!
-//! The following UART signals are configured only for displaying console
-//! messages for this example.  These are not required for operation of the
-//! ADC.
-//! - UART0 peripheral
-//! - GPIO Port A peripheral (for UART0 pins)
-//! - UART0RX - PA0
-//! - UART0TX - PA1
-//!
-//! This example uses the following interrupt handlers.  To use this example
-//! in your own application you must add these interrupt handlers to your
-//! vector table.
-//! - None.
-//
-//*****************************************************************************
 
+// More in-depth description should go here.
 
-// Number of ADC channels that will be measured
-uint8_t NUM_CHANNELS = 4;
 uint64_t intRTCtime;
 struct tm RealTime;     // time struct
 
-//*****************************************************************************
-//
 // This function sets up UART0 to be used for a console to display information
 // as the example is running.
-//
-//*****************************************************************************
 void
 InitConsole(void)
 {
@@ -172,13 +100,9 @@ RTCSetup(void)
 }
 
 
-//*****************************************************************************
-//
 // Configure ADC0 for a single-ended input and a single sample.  Once the
 // sample is ready, an interrupt flag will be set.  Using a polling method,
 // the data will be read then displayed on the console via UART0.
-//
-//*****************************************************************************
 int
 main(void)
 {
@@ -222,6 +146,12 @@ main(void)
     while(!AcquireSetup())
     {
     }
+
+    // For debugging so that I don't have to wait
+    while(!RTCHandler())
+    {
+    }
+
 
     while(!StartLogging())
     {

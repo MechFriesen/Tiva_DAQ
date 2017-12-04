@@ -1138,7 +1138,7 @@ again:
 convert:
                     for(ui32Idx = 1;
                         (((ui32Idx * ui32Base) <= ui32Value) &&
-                         (((ui32Idx * ui32Base) / ui32Base) == ui32Idx));
+                         (((ui32Idx * ui32Base ) / ui32Base) == ui32Idx));
                         ui32Idx *= ui32Base, ui32Count--)
                     {
                     }
