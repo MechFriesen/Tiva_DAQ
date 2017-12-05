@@ -106,15 +106,29 @@ RTCSetup(void)
 int
 main(void)
 {
+    // Enable lazy stacking for interrupt handlers.  This allows floating-point
+    // instructions to be used within interrupt handlers, but at the expense of
+    // extra stack usage.
+    ROM_FPULazyStackingEnable();
 
     // Set the system clock to run at 50 MHz (200 MHz from PLL / 4)
     SysCtlClockSet( SYSCTL_SYSDIV_4 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN |
                    SYSCTL_XTAL_16MHZ);
 
-    //
     // Set up the serial console to use for displaying messages. This is used
     // for setup and currently data output (SD card saving is WIP)
     InitConsole();
+
+    // Enable the peripherals used by this example.
+    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_SSI0);
+
+    // Configure SysTick for a 100Hz interrupt.  The FatFs driver wants a 10 ms tick
+    ROM_SysTickPeriodSet(ROM_SysCtlClockGet() / 100);
+    ROM_SysTickEnable();
+    ROM_SysTickIntEnable();
+
+    // Enable Interrupts
+    ROM_IntMasterEnable();
 
     // Checks if the the wake-up is due to an RTC match.
     // If so, we go to the RTC handler in FP_acquire
