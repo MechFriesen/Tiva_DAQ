@@ -53,15 +53,16 @@ itoc( char * bufferString, uint32_t outValue)
 void
 Timer0Handler(void)
 {
-    uint32_t pui32ADC0Value, intValue, charCount;    // buffer for ADC data
-    char TimeString[10] = '\0', ADCString[10] = '\0';         // buffer for serial output
+    uint32_t ADC0Value,  charCount;    // buffer for ADC data, number of characters in a string
+    char TimeString[10] = {'\0'}, ADCString[10] = {'\0'};         // buffers for serial output
 
-    TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
+    TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);     // clear timer interrupt
+    TimerIntCounter++;      // iterate number of measurements taken in this sample
 
     // Disable timer interrupts while the measurement is handled
     IntDisable(INT_TIMER0A);
 
-    //  Trigger the ADC conversion.
+    // Trigger the ADC conversion.
     ADCProcessorTrigger(ADC0_BASE, 1);
 
     // Wait for conversion to be completed.
@@ -70,27 +71,18 @@ Timer0Handler(void)
     }
 
     ADCIntClear(ADC0_BASE, 1);  // Clear the ADC interrupt flag.
-
-    TimerIntCounter++;
-    ADCSequenceDataGet(ADC0_BASE, 1, &pui32ADC0Value);       // Read ADC Value.
-
-    //Output data to serial console
-//    UARTprintf("%5i, %05i, %4i\n", TimerIntCounter, HibernateRTCSSGet(), pui32ADC0Value[1]); // Output data to Serial
-
-    //
-    // Maybe a faster output to serial
-    //
-    intValue = 547; // for debugging
+    ADCSequenceDataGet(ADC0_BASE, 1, &ADC0Value);       // Read ADC Value.
 
     // Print RTC sub-seconds
     charCount = itoc( TimeString, HibernateRTCSSGet());
-    TimeString[charCount++] = ',';
-    UARTwrite( TimeString, charCount + 1);
+    TimeString[charCount++] = '\n';
+    UARTwrite( TimeString, charCount + 1);      // This slows down execution to about 600 Hz
 
     // Convert ADC reading
-    charCount = itoc( ADCString, intValue);    // change to pui32ADC0Value post-debug
+    // Create a loop if multiple analog channels are used
+    charCount = itoc( ADCString, ADC0Value);
     ADCString[charCount++] = '\n';
-    UARTwrite( ADCString, charCount + 1);
+    UARTwrite( ADCString, charCount + 1);       // This slows down execution to about 600 Hz
 
     // Reset the timer interrupt
     if( TimerIntCounter < ConfigState.MeasurementsPerSample)
@@ -121,7 +113,7 @@ RTCHandler(void)
     {
     }
 
-    UARTprintf("Sample Number, RTC subseconds [1/32768 s], CH0\n");
+    UARTprintf("RTC sub-seconds [1/32768 s], CH0\n");
 
     // Set up the Timer interrupt shit
     TimerIntCounter = 0;
@@ -175,13 +167,13 @@ AcquireSetup()
     uint32_t TimerClkFreq = SysCtlClockGet();
     float SampleDuration = 1;
     struct tm tempSampleTime;   // temporary time structure for validity checks
-    const char** endptr = ' ';  // useless little pointer that ustrtoul needs to feel good about itself
-    char uartBuf[10] = {"\0"};  // Buffer for text from serial
+    const char* endptr;  // useless little pointer that ustrtoul needs to feel good about itself
+    char uartBuf[10] = {'\0'};  // Buffer for text from serial
 
     UARTprintf("How many samples per day? (max 12)\n");
     UARTgets(uartBuf, MaxInputLen);
 //    ConfigState.SamplesPerDay = 0;
-    ConfigState.SamplesPerDay = ustrtoul(uartBuf, endptr, 10);
+    ConfigState.SamplesPerDay = ustrtoul(uartBuf, &endptr, 10);
     UARTprintf("SamplesPerDay: %i\n", ConfigState.SamplesPerDay);
 
     ulocaltime( HibernateRTCGet(), &tempSampleTime);    // load values to tm struct
@@ -190,10 +182,10 @@ AcquireSetup()
         UARTprintf("\nWhen (HH:MM) should sample %i be taken? \n", ii);
         UARTgets(uartBuf, MaxInputLen);
         char* token = strtok(uartBuf, ":");
-        int hour = ustrtoul( token, endptr, 10) % 24;
+        int hour = ustrtoul( token, &endptr, 10) % 24;
         tempSampleTime.tm_hour = hour;
         token = strtok(NULL, ":");
-        int min = ustrtoul( token, endptr, 10);
+        int min = ustrtoul( token, &endptr, 10);
         tempSampleTime.tm_min = min;
         tempSampleTime.tm_sec = 0;          // Samples start on the minute
 
@@ -204,17 +196,17 @@ AcquireSetup()
         }
         else
         {
-            ConfigState.RTCMatchPeriod[ii] = hour*60 + min;      // time from midnight in minutes
+            ConfigState.RTCMatchPeriod[ii-1] = hour*60 + min;      // time from midnight in minutes
 
             // for debugging
-            UARTprintf("RTCMatchPeriod %i: %i\n", ii, ConfigState.RTCMatchPeriod[ii]);
+            UARTprintf("RTCMatchPeriod %i: %i\n", ii, ConfigState.RTCMatchPeriod[ii-1]);
         }
     }
 
     // Determine sample rate
     UARTprintf("\nWhat sample rate (Hz) do you want?\n");
     UARTgets( uartBuf, MaxInputLen);
-    SampleFreq = ustrtoul( uartBuf, endptr, 10);
+    SampleFreq = ustrtoul( uartBuf, &endptr, 10);
 
     // MeasFreq is in Hz. Converts to clock ticks.
     // 1 clock tick = 1/12500000 s
@@ -223,7 +215,7 @@ AcquireSetup()
     // Determine sample duration
     UARTprintf("\nDuration (sec) of sampling?\n");
     UARTgets( uartBuf, MaxInputLen);
-    SampleDuration = ustrtof( uartBuf, endptr);
+    SampleDuration = ustrtof( uartBuf, &endptr);
     ConfigState.MeasurementsPerSample = (SampleDuration * TimerClkFreq) / ConfigState.MeasPeriod;
 
     // set up the RTC interrupt shit.
@@ -317,6 +309,8 @@ ADCSetup()
     //
     GPIOPinTypeADC(GPIO_PORTE_BASE, GPIO_PIN_3 | GPIO_PIN_2 | GPIO_PIN_1
                    | GPIO_PIN_0);
+
+//    ADCClockConfigSet(ADC0_BASE,  ADC_CLOCK_SRC_PLL | ADC_CLOCK_RATE_FULL, 2);
 
     //
     // Enable sample sequence 0 with a processor signal trigger.  Sequence 0

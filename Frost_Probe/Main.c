@@ -108,7 +108,7 @@ main(void)
 {
 
     // Set the system clock to run at 50 MHz (200 MHz from PLL / 4)
-    SysCtlClockSet(SYSCTL_SYSDIV_4 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN |
+    SysCtlClockSet( SYSCTL_SYSDIV_4 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN |
                    SYSCTL_XTAL_16MHZ);
 
     //
@@ -146,12 +146,6 @@ main(void)
     while(!AcquireSetup())
     {
     }
-
-    // For debugging so that I don't have to wait
-    while(!RTCHandler())
-    {
-    }
-
 
     while(!StartLogging())
     {
