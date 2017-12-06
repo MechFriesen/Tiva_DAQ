@@ -25,6 +25,7 @@
 #include "datetimeset.h"
 #include "grlib/grlib.h"
 #include "FP_acquire.h"
+#include "sd_card.h"
 
 // More in-depth description should go here.
 
@@ -153,6 +154,10 @@ main(void)
 
     // Display the RTC time and let user set current time
     while(!SysTimeSet())
+    {
+    }
+
+    while(!SerialUI())
     {
     }
 

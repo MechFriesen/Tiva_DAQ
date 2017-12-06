@@ -24,6 +24,28 @@
 		<nature>org.eclipse.cdt.core.ccnature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>utils/cmdline.c</name>
+			<type>1</type>
+			<locationURI>LIB_ROOT/utils/cmdline.c</locationURI>
+		</link>
+		<link>
+			<name>third_party/fatfs/port/mmc-dk-tm4c123g.c</name>
+			<type>1</type>
+			<locationURI>LIB_ROOT/third_party/fatfs/port/mmc-dk-tm4c123g.c</locationURI>
+		</link>
+		<link>
+			<name>third_party/fatfs/src/ff.c</name>
+			<type>1</type>
+			<locationURI>LIB_ROOT/third_party/fatfs/src/ff.c</locationURI>
+		</link>
+		<link>
+			<name>third_party/fatfs/src/option/cc932.c</name>
+			<type>1</type>
+			<locationURI>LIB_ROOT/third_party/fatfs/src/option/cc932.c</locationURI>
+		</link>
+	</linkedResources>
 	<variableList>
 		<variable>
 			<name>ADC_INCLUDE</name>

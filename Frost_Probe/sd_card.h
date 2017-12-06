@@ -87,34 +87,7 @@ typedef struct
 //*****************************************************************************
 #define FRESULT_ENTRY(f)        { (f), (#f) }
 
-//*****************************************************************************
-//
-// A table that holds a mapping between the numerical FRESULT code and it's
-// name as a string.  This is used for looking up error codes for printing to
-// the console.
-//
-//*****************************************************************************
-tFResultString g_psFResultStrings[] = {
-   FRESULT_ENTRY(FR_OK),
-   FRESULT_ENTRY(FR_DISK_ERR),
-   FRESULT_ENTRY(FR_INT_ERR),
-   FRESULT_ENTRY(FR_NOT_READY),
-   FRESULT_ENTRY(FR_NO_FILE),
-   FRESULT_ENTRY(FR_NO_PATH),
-   FRESULT_ENTRY(FR_INVALID_NAME),
-   FRESULT_ENTRY(FR_DENIED),
-   FRESULT_ENTRY(FR_EXIST),
-   FRESULT_ENTRY(FR_INVALID_OBJECT),
-   FRESULT_ENTRY(FR_WRITE_PROTECTED),
-   FRESULT_ENTRY(FR_INVALID_DRIVE),
-   FRESULT_ENTRY(FR_NOT_ENABLED),
-   FRESULT_ENTRY(FR_NO_FILESYSTEM),
-   FRESULT_ENTRY(FR_MKFS_ABORTED),
-   FRESULT_ENTRY(FR_TIMEOUT),
-   FRESULT_ENTRY(FR_LOCKED),
-   FRESULT_ENTRY(FR_NOT_ENOUGH_CORE),
-   FRESULT_ENTRY(FR_TOO_MANY_OPEN_FILES),
-   FRESULT_ENTRY(FR_INVALID_PARAMETER), };
+
 
 //*****************************************************************************
 //
@@ -131,10 +104,26 @@ tFResultString g_psFResultStrings[] = {
 //*****************************************************************************
 tContext g_sContext;
 
+//// This is the table that holds the command names, implementing functions, and
+//// brief description.
+////
+////*****************************************************************************
+//tCmdLineEntry g_psCmdTable[] =
+//{
+//    { "help",   Cmd_help,   "Display list of commands" },
+//    { "h",      Cmd_help,   "alias for help" },
+//    { "?",      Cmd_help,   "alias for help" },
+//    { "ls",     Cmd_ls,     "Display list of files" },
+//    { "chdir",  Cmd_cd,     "Change directory" },
+//    { "cd",     Cmd_cd,     "alias for chdir" },
+//    { "pwd",    Cmd_pwd,    "Show current working directory" },
+//    { "cat",    Cmd_cat,    "Show contents of a text file" },
+//    { 0, 0, 0 }
+//};
+
 //*****************************************************************************
 // Functions
 extern const char * StringFromFResult(FRESULT iFResult);
-extern void SysTickHandler(void);
 
 // User commands via serial
 extern int Cmd_ls(int argc, char *argv[]);

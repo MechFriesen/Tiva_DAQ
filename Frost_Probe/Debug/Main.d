@@ -29,6 +29,15 @@ Main.obj: C:/ti/TivaWare_C_Series-2.1.3.156/inc/hw_hibernate.h
 Main.obj: ../datetimeset.h
 Main.obj: C:/ti/TivaWare_C_Series-2.1.3.156/grlib/grlib.h
 Main.obj: ../FP_acquire.h
+Main.obj: ../sd_card.h
+Main.obj: C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/string.h
+Main.obj: C:/ti/TivaWare_C_Series-2.1.3.156/driverlib/interrupt.h
+Main.obj: C:/ti/TivaWare_C_Series-2.1.3.156/utils/cmdline.h
+Main.obj: C:/ti/TivaWare_C_Series-2.1.3.156/third_party/fatfs/src/ff.h
+Main.obj: C:/ti/TivaWare_C_Series-2.1.3.156/third_party/fatfs/src/integer.h
+Main.obj: C:/ti/TivaWare_C_Series-2.1.3.156/third_party/fatfs/src/ffconf.h
+Main.obj: C:/ti/TivaWare_C_Series-2.1.3.156/third_party/fatfs/src/diskio.h
+Main.obj: ../drivers/cfal96x64x16.h
 
 ../Main.c: 
 C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/stdbool.h: 
@@ -59,3 +68,12 @@ C:/ti/TivaWare_C_Series-2.1.3.156/inc/hw_hibernate.h:
 ../datetimeset.h: 
 C:/ti/TivaWare_C_Series-2.1.3.156/grlib/grlib.h: 
 ../FP_acquire.h: 
+../sd_card.h: 
+C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/string.h: 
+C:/ti/TivaWare_C_Series-2.1.3.156/driverlib/interrupt.h: 
+C:/ti/TivaWare_C_Series-2.1.3.156/utils/cmdline.h: 
+C:/ti/TivaWare_C_Series-2.1.3.156/third_party/fatfs/src/ff.h: 
+C:/ti/TivaWare_C_Series-2.1.3.156/third_party/fatfs/src/integer.h: 
+C:/ti/TivaWare_C_Series-2.1.3.156/third_party/fatfs/src/ffconf.h: 
+C:/ti/TivaWare_C_Series-2.1.3.156/third_party/fatfs/src/diskio.h: 
+../drivers/cfal96x64x16.h: 
