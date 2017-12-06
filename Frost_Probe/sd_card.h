@@ -103,23 +103,6 @@ typedef struct
 //*****************************************************************************
 tContext g_sContext;
 
-//// This is the table that holds the command names, implementing functions, and
-//// brief description.
-////
-////*****************************************************************************
-//tCmdLineEntry g_psCmdTable[] =
-//{
-//    { "help",   Cmd_help,   "Display list of commands" },
-//    { "h",      Cmd_help,   "alias for help" },
-//    { "?",      Cmd_help,   "alias for help" },
-//    { "ls",     Cmd_ls,     "Display list of files" },
-//    { "chdir",  Cmd_cd,     "Change directory" },
-//    { "cd",     Cmd_cd,     "alias for chdir" },
-//    { "pwd",    Cmd_pwd,    "Show current working directory" },
-//    { "cat",    Cmd_cat,    "Show contents of a text file" },
-//    { 0, 0, 0 }
-//};
-
 //*****************************************************************************
 // Functions
 extern const char * StringFromFResult(FRESULT iFResult);
@@ -134,4 +117,5 @@ extern int Cmd_date();
 extern int Cmd_time();
 extern int Cmd_log();
 extern int Cmd_log_config();
+extern int Cmd_log_file(int argc, char *argv[]);
 extern int SerialUI(void);

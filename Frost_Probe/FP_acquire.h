@@ -12,17 +12,18 @@ extern "C"
 {
 #endif
 
-//extern struct tm RealTime;
+#define PATH_BUF_SIZE   64
 
 typedef struct
 {
-    uint32_t Cookie;                // Cookie
-    uint32_t MeasPeriod;            // inverse of sample rate
-    uint16_t RTCMatchPeriod[12];    // seconds until next RTC match
-    uint16_t SamplesPerDay;          // number of samples per day
-    uint32_t MeasurementsPerSample; // number of measurements in a sample
-    uint16_t RTCMatchCount;          // number of RTC matches
-    uint32_t uiCRC;                 // Checksum
+    uint32_t Cookie;                        // Cookie
+    char     logFilePath[PATH_BUF_SIZE];    // File path to where logged data is saved
+    uint32_t MeasPeriod;                    // inverse of sample rate
+    uint16_t RTCMatchPeriod[12];            // seconds until next RTC match
+    uint16_t SamplesPerDay;                 // number of samples per day
+    uint32_t MeasurementsPerSample;         // number of measurements in a sample
+    uint16_t RTCMatchCount;                 // number of RTC matches
+    uint32_t uiCRC;                         // Checksum
 }
 tCfgState;
 

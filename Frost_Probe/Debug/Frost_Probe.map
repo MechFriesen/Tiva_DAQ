@@ -1,34 +1,34 @@
 ******************************************************************************
                   TI ARM Linker PC v16.9.4                     
 ******************************************************************************
->> Linked Wed Dec 06 15:21:06 2017
+>> Linked Wed Dec 06 17:06:23 2017
 
 OUTPUT FILE NAME:   <Frost_Probe.out>
-ENTRY POINT SYMBOL: "_c_int00"  address: 0000fc69
+ENTRY POINT SYMBOL: "_c_int00"  address: 0000fcc1
 
 
 MEMORY CONFIGURATION
 
          name            origin    length      used     unused   attr    fill
 ----------------------  --------  ---------  --------  --------  ----  --------
-  FLASH                 00000000   00040000  000104b8  0002fb48  R  X
-  SRAM                  20000000   00008000  00000df2  0000720e  RW X
+  FLASH                 00000000   00040000  00010518  0002fae8  R  X
+  SRAM                  20000000   00008000  00001062  00006f9e  RW X
 
 
 SEGMENT ALLOCATION MAP
 
 run origin  load origin   length   init length attrs members
 ----------  ----------- ---------- ----------- ----- -------
-00000000    00000000    000104b8   000104b8    r-x
+00000000    00000000    00010518   00010518    r-x
   00000000    00000000    0000026c   0000026c    r-- .intvecs
-  0000026c    0000026c    000081d0   000081d0    r-- .const
-  0000843c    0000843c    00007f1c   00007f1c    r-x .text
-  00010358    00010358    00000160   00000160    r-- .cinit
-20000000    20000000    00000df4   00000000    rw-
+  0000026c    0000026c    00008200   00008200    r-- .const
+  0000846c    0000846c    00007f44   00007f44    r-x .text
+  000103b0    000103b0    00000168   00000168    r-- .cinit
+20000000    20000000    00001064   00000000    rw-
   20000000    20000000    0000026c   00000000    rw- .vtable
-  2000026c    2000026c    000007ba   00000000    rw- .bss
-  20000a28    20000a28    00000200   00000000    rw- .stack
-  20000c28    20000c28    000001cc   00000000    rw- .data
+  2000026c    2000026c    00000a1e   00000000    rw- .bss
+  20000c8c    20000c8c    00000200   00000000    rw- .stack
+  20000e8c    20000e8c    000001d8   00000000    rw- .data
 
 
 SECTION ALLOCATION MAP
@@ -39,141 +39,141 @@ section   page    origin      length       input sections
 .intvecs   0    00000000    0000026c     
                   00000000    0000026c     tm4c123gh6pge_startup_ccs.obj (.intvecs)
 
-.const     0    0000026c    000081d0     
+.const     0    0000026c    00008200     
                   0000026c    00007378     cc932.obj (.const:uni2sjis)
                   000075e4    000002f8     grlib.lib : fontfixed6x8.obj (.const:.string:g_pui8FontFixed6x8Data)
-                  000078dc    0000027a     sd_card.obj (.const:.string)
-                  00007b56    00000200     driverlib.lib : sw_crc.obj (.const:g_pui16Crc16)
-                  00007d56    000001e0     cc932.obj (.const:tbl_lower$1)
-                  00007f36    000001e0     cc932.obj (.const:tbl_upper$2)
-                  00008116    00000002     --HOLE-- [fill = 0]
-                  00008118    000000c8     grlib.lib : fontfixed6x8.obj (.const:g_sFontFixed6x8)
-                  000081e0    00000090     driverlib.lib : gpio.obj (.const:g_pui32GPIOBaseAddrs)
-                  00008270    00000070                   : interrupt.obj (.const)
-                  000082e0    0000006c                   : sysctl.obj (.const:g_pui32Xtals)
-                  0000834c    00000030     ustdlib.obj (.const:g_psDaysToMonth)
-                  0000837c    00000028     cfal96x64x16.obj (.const:g_sCFAL96x64x16)
-                  000083a4    00000018     ustdlib.obj (.const:g_pfExponents)
-                  000083bc    00000012     FP_acquire.obj (.const:.string)
-                  000083ce    00000002     --HOLE-- [fill = 0]
-                  000083d0    00000012     uartstdio.obj (.const:.string)
-                  000083e2    00000002     --HOLE-- [fill = 0]
-                  000083e4    00000012     ustdlib.obj (.const:.string)
-                  000083f6    00000002     --HOLE-- [fill = 0]
-                  000083f8    00000010     grlib.lib : context.obj (.const)
-                  00008408    0000000d     ff.obj (.const:.string:LfnOfs)
-                  00008415    00000003     --HOLE-- [fill = 0]
-                  00008418    0000000c     uartstdio.obj (.const:g_ui32UARTBase)
-                  00008424    0000000c     uartstdio.obj (.const:g_ui32UARTPeriph)
-                  00008430    00000004     FP_acquire.obj (.const)
-                  00008434    00000004     uartstdio.obj (.const)
-                  00008438    00000004     ustdlib.obj (.const)
+                  000078dc    000002aa     sd_card.obj (.const:.string)
+                  00007b86    00000200     driverlib.lib : sw_crc.obj (.const:g_pui16Crc16)
+                  00007d86    000001e0     cc932.obj (.const:tbl_lower$1)
+                  00007f66    000001e0     cc932.obj (.const:tbl_upper$2)
+                  00008146    00000002     --HOLE-- [fill = 0]
+                  00008148    000000c8     grlib.lib : fontfixed6x8.obj (.const:g_sFontFixed6x8)
+                  00008210    00000090     driverlib.lib : gpio.obj (.const:g_pui32GPIOBaseAddrs)
+                  000082a0    00000070                   : interrupt.obj (.const)
+                  00008310    0000006c                   : sysctl.obj (.const:g_pui32Xtals)
+                  0000837c    00000030     ustdlib.obj (.const:g_psDaysToMonth)
+                  000083ac    00000028     cfal96x64x16.obj (.const:g_sCFAL96x64x16)
+                  000083d4    00000018     ustdlib.obj (.const:g_pfExponents)
+                  000083ec    00000012     FP_acquire.obj (.const:.string)
+                  000083fe    00000002     --HOLE-- [fill = 0]
+                  00008400    00000012     uartstdio.obj (.const:.string)
+                  00008412    00000002     --HOLE-- [fill = 0]
+                  00008414    00000012     ustdlib.obj (.const:.string)
+                  00008426    00000002     --HOLE-- [fill = 0]
+                  00008428    00000010     grlib.lib : context.obj (.const)
+                  00008438    0000000d     ff.obj (.const:.string:LfnOfs)
+                  00008445    00000003     --HOLE-- [fill = 0]
+                  00008448    0000000c     uartstdio.obj (.const:g_ui32UARTBase)
+                  00008454    0000000c     uartstdio.obj (.const:g_ui32UARTPeriph)
+                  00008460    00000004     FP_acquire.obj (.const)
+                  00008464    00000004     uartstdio.obj (.const)
+                  00008468    00000004     ustdlib.obj (.const)
 
-.text      0    0000843c    00007f1c     
-                  0000843c    000033a0     ff.obj (.text)
-                  0000b7dc    00000c84     ustdlib.obj (.text)
-                  0000c460    000009c8     mmc-dk-tm4c123g.obj (.text)
-                  0000ce28    00000900     sd_card.obj (.text)
-                  0000d728    0000077c     FP_acquire.obj (.text)
-                  0000dea4    0000067c     cfal96x64x16.obj (.text)
-                  0000e520    000004dc     uartstdio.obj (.text)
-                  0000e9fc    00000378     Main.obj (.text)
-                  0000ed74    00000254     grlib.lib : string.obj (.text:GrFontGlyphRender)
-                  0000efc8    00000132     driverlib.lib : gpio.obj (.text:GPIOPadConfigSet)
-                  0000f0fa    00000002     rtsv7M4_T_le_v4SPD16_eabi.lib : i_div0.obj (.text)
-                  0000f0fc    00000128     cc932.obj (.text)
-                  0000f224    00000110     driverlib.lib : sysctl.obj (.text:SysCtlClockGet)
-                  0000f334    000000f4                   : sysctl.obj (.text:SysCtlClockSet)
-                  0000f428    000000cc                   : sw_crc.obj (.text:Crc16)
-                  0000f4f4    000000c0     grlib.lib : string.obj (.text:GrDefaultStringRenderer)
-                  0000f5b4    000000ac     cmdline.obj (.text)
-                  0000f660    0000009c     rtsv7M4_T_le_v4SPD16_eabi.lib : memcpy_t2.obj (.text)
-                  0000f6fc    00000086     grlib.lib : rectangle.obj (.text:GrRectFill)
-                  0000f782    0000007a     driverlib.lib : adc.obj (.text:ADCSequenceStepConfigure)
-                  0000f7fc    0000007a     rtsv7M4_T_le_v4SPD16_eabi.lib : memset_t2.obj (.text)
-                  0000f876    00000002                                   : mpu_init.obj (.text)
-                  0000f878    00000070                                   : autoinit.obj (.text)
-                  0000f8e8    00000068     grlib.lib : context.obj (.text:GrContextInit)
-                  0000f950    00000068               : string.obj (.text:GrStringWidthGet)
-                  0000f9b8    00000068     driverlib.lib : interrupt.obj (.text:IntDisable)
-                  0000fa20    00000068                   : interrupt.obj (.text:IntEnable)
-                  0000fa88    00000068     rtsv7M4_T_le_v4SPD16_eabi.lib : copy_decompress_lzss.obj (.text:decompress:lzss)
-                  0000faf0    00000064     driverlib.lib : hibernate.obj (.text:HibernateWakeSet)
-                  0000fb54    00000060                   : timer.obj (.text:TimerConfigure)
-                  0000fbb4    0000005a     grlib.lib : string.obj (.text:FontWideGlyphDataGet)
-                  0000fc0e    00000002     rtsv7M4_T_le_v4SPD16_eabi.lib : startup.obj (.text)
-                  0000fc10    00000058     driverlib.lib : adc.obj (.text:ADCSequenceConfigure)
-                  0000fc68    00000054     rtsv7M4_T_le_v4SPD16_eabi.lib : boot.obj (.text)
-                  0000fcbc    00000054                                   : exit.obj (.text)
-                  0000fd10    0000004c                                   : cpy_tbl.obj (.text)
-                  0000fd5c    0000004a     grlib.lib : string.obj (.text:UpdateContextCharMapping)
-                  0000fda6    00000002     --HOLE-- [fill = 0]
-                  0000fda8    00000048     driverlib.lib : gpio.obj (.text:GPIOPinConfigure)
-                  0000fdf0    00000040     rtsv7M4_T_le_v4SPD16_eabi.lib : strtok.obj (.text)
-                  0000fe30    00000040                                   : u_divt2.obj (.text)
-                  0000fe70    0000003a     grlib.lib : string.obj (.text:FontGlyphDataGet)
-                  0000feaa    00000036     rtsv7M4_T_le_v4SPD16_eabi.lib : strncpy.obj (.text)
-                  0000fee0    00000034     driverlib.lib : interrupt.obj (.text:IntRegister)
-                  0000ff14    00000034                   : sysctl.obj (.text:SysCtlPeripheralEnable)
-                  0000ff48    0000002e                   : adc.obj (.text:ADCIntStatus)
-                  0000ff76    0000002e     grlib.lib : string.obj (.text:GrStringNextCharGet)
-                  0000ffa4    0000002c               : string.obj (.text:GrFontBaselineGet)
-                  0000ffd0    0000002c     driverlib.lib : hibernate.obj (.text:HibernateRTCSet)
-                  0000fffc    0000002a                   : gpio.obj (.text:GPIODirModeSet)
-                  00010026    0000002a     rtsv7M4_T_le_v4SPD16_eabi.lib : strspn.obj (.text)
-                  00010050    00000028     driverlib.lib : hibernate.obj (.text:HibernateDataSet)
-                  00010078    00000026     grlib.lib : string.obj (.text:GrFontInfoGet)
-                  0001009e    00000002     --HOLE-- [fill = 0]
-                  000100a0    00000024     driverlib.lib : hibernate.obj (.text:HibernateDataGet)
-                  000100c4    00000024     rtsv7M4_T_le_v4SPD16_eabi.lib : strcspn.obj (.text)
-                  000100e8    00000022     grlib.lib : string.obj (.text:GrFontGlyphDataGet)
-                  0001010a    0000001e     driverlib.lib : adc.obj (.text:ADCSequenceDataGet)
-                  00010128    0000001e     grlib.lib : string.obj (.text:GrFontCodepageGet)
-                  00010146    0000001e     rtsv7M4_T_le_v4SPD16_eabi.lib : strcat.obj (.text)
-                  00010164    00000018     driverlib.lib : adc.obj (.text:ADCProcessorTrigger)
-                  0001017c    00000018                   : hibernate.obj (.text:HibernateIntStatus)
-                  00010194    00000018     rtsv7M4_T_le_v4SPD16_eabi.lib : args_main.obj (.text)
-                  000101ac    00000018                                   : strcmp.obj (.text)
-                  000101c4    00000016     grlib.lib : string.obj (.text:GrStringDraw)
-                  000101da    00000002     --HOLE-- [fill = 0]
-                  000101dc    00000014     driverlib.lib : hibernate.obj (.text:HibernateEnableExpClk)
-                  000101f0    00000014                   : hibernate.obj (.text:HibernateIntClear)
-                  00010204    00000014                   : hibernate.obj (.text:HibernateRTCEnable)
-                  00010218    00000014                   : hibernate.obj (.text:HibernateRequest)
-                  0001022c    00000014     rtsv7M4_T_le_v4SPD16_eabi.lib : _lock.obj (.text)
-                  00010240    00000014                                   : strcpy.obj (.text)
-                  00010254    00000014                                   : strlen.obj (.text)
-                  00010268    00000012     driverlib.lib : gpio.obj (.text:GPIOPinTypeADC)
-                  0001027a    00000012                   : timer.obj (.text:TimerLoadSet)
-                  0001028c    00000010                   : hibernate.obj (.text:HibernateRTCMatchSet)
-                  0001029c    00000010                   : hibernate.obj (.text:HibernateRTCSSGet)
-                  000102ac    00000010                   : hibernate.obj (.text:HibernateRTCTrimSet)
-                  000102bc    00000010                   : hibernate.obj (.text:_HibernateWriteComplete)
-                  000102cc    0000000e                   : adc.obj (.text:ADCSequenceEnable)
-                  000102da    0000000e                   : timer.obj (.text:TimerEnable)
-                  000102e8    0000000e     rtsv7M4_T_le_v4SPD16_eabi.lib : copy_decompress_none.obj (.text:decompress:none)
-                  000102f6    00000002     --HOLE-- [fill = 0]
-                  000102f8    0000000c     driverlib.lib : hibernate.obj (.text:HibernateRTCGet)
-                  00010304    0000000c     rtsv7M4_T_le_v4SPD16_eabi.lib : copy_zero_init.obj (.text:decompress:ZI)
-                  00010310    0000000c     tm4c123gh6pge_startup_ccs.obj (.text)
-                  0001031c    0000000a     driverlib.lib : adc.obj (.text:ADCIntClear)
-                  00010326    00000008                   : sw_crc.obj (.text:Crc16Array)
-                  0001032e    00000008     grlib.lib : charmap.obj (.text:GrMapISO8859_1_Unicode)
-                  00010336    00000008     driverlib.lib : timer.obj (.text:TimerIntEnable)
-                  0001033e    00000006     grlib.lib : string.obj (.text:GrContextFontSet)
-                  00010344    00000006     driverlib.lib : sysctl.obj (.text:SysCtlDelay)
-                  0001034a    00000006                   : timer.obj (.text:TimerClockSourceSet)
-                  00010350    00000004                   : timer.obj (.text:TimerIntClear)
-                  00010354    00000004     rtsv7M4_T_le_v4SPD16_eabi.lib : pre_init.obj (.text)
+.text      0    0000846c    00007f44     
+                  0000846c    000033a0     ff.obj (.text)
+                  0000b80c    00000c84     ustdlib.obj (.text)
+                  0000c490    000009c8     mmc-dk-tm4c123g.obj (.text)
+                  0000ce58    0000090c     sd_card.obj (.text)
+                  0000d764    00000798     FP_acquire.obj (.text)
+                  0000defc    0000067c     cfal96x64x16.obj (.text)
+                  0000e578    000004dc     uartstdio.obj (.text)
+                  0000ea54    00000378     Main.obj (.text)
+                  0000edcc    00000254     grlib.lib : string.obj (.text:GrFontGlyphRender)
+                  0000f020    00000132     driverlib.lib : gpio.obj (.text:GPIOPadConfigSet)
+                  0000f152    00000002     rtsv7M4_T_le_v4SPD16_eabi.lib : i_div0.obj (.text)
+                  0000f154    00000128     cc932.obj (.text)
+                  0000f27c    00000110     driverlib.lib : sysctl.obj (.text:SysCtlClockGet)
+                  0000f38c    000000f4                   : sysctl.obj (.text:SysCtlClockSet)
+                  0000f480    000000cc                   : sw_crc.obj (.text:Crc16)
+                  0000f54c    000000c0     grlib.lib : string.obj (.text:GrDefaultStringRenderer)
+                  0000f60c    000000ac     cmdline.obj (.text)
+                  0000f6b8    0000009c     rtsv7M4_T_le_v4SPD16_eabi.lib : memcpy_t2.obj (.text)
+                  0000f754    00000086     grlib.lib : rectangle.obj (.text:GrRectFill)
+                  0000f7da    0000007a     driverlib.lib : adc.obj (.text:ADCSequenceStepConfigure)
+                  0000f854    0000007a     rtsv7M4_T_le_v4SPD16_eabi.lib : memset_t2.obj (.text)
+                  0000f8ce    00000002                                   : mpu_init.obj (.text)
+                  0000f8d0    00000070                                   : autoinit.obj (.text)
+                  0000f940    00000068     grlib.lib : context.obj (.text:GrContextInit)
+                  0000f9a8    00000068               : string.obj (.text:GrStringWidthGet)
+                  0000fa10    00000068     driverlib.lib : interrupt.obj (.text:IntDisable)
+                  0000fa78    00000068                   : interrupt.obj (.text:IntEnable)
+                  0000fae0    00000068     rtsv7M4_T_le_v4SPD16_eabi.lib : copy_decompress_lzss.obj (.text:decompress:lzss)
+                  0000fb48    00000064     driverlib.lib : hibernate.obj (.text:HibernateWakeSet)
+                  0000fbac    00000060                   : timer.obj (.text:TimerConfigure)
+                  0000fc0c    0000005a     grlib.lib : string.obj (.text:FontWideGlyphDataGet)
+                  0000fc66    00000002     rtsv7M4_T_le_v4SPD16_eabi.lib : startup.obj (.text)
+                  0000fc68    00000058     driverlib.lib : adc.obj (.text:ADCSequenceConfigure)
+                  0000fcc0    00000054     rtsv7M4_T_le_v4SPD16_eabi.lib : boot.obj (.text)
+                  0000fd14    00000054                                   : exit.obj (.text)
+                  0000fd68    0000004c                                   : cpy_tbl.obj (.text)
+                  0000fdb4    0000004a     grlib.lib : string.obj (.text:UpdateContextCharMapping)
+                  0000fdfe    00000002     --HOLE-- [fill = 0]
+                  0000fe00    00000048     driverlib.lib : gpio.obj (.text:GPIOPinConfigure)
+                  0000fe48    00000040     rtsv7M4_T_le_v4SPD16_eabi.lib : strtok.obj (.text)
+                  0000fe88    00000040                                   : u_divt2.obj (.text)
+                  0000fec8    0000003a     grlib.lib : string.obj (.text:FontGlyphDataGet)
+                  0000ff02    00000036     rtsv7M4_T_le_v4SPD16_eabi.lib : strncpy.obj (.text)
+                  0000ff38    00000034     driverlib.lib : interrupt.obj (.text:IntRegister)
+                  0000ff6c    00000034                   : sysctl.obj (.text:SysCtlPeripheralEnable)
+                  0000ffa0    0000002e                   : adc.obj (.text:ADCIntStatus)
+                  0000ffce    0000002e     grlib.lib : string.obj (.text:GrStringNextCharGet)
+                  0000fffc    0000002c               : string.obj (.text:GrFontBaselineGet)
+                  00010028    0000002c     driverlib.lib : hibernate.obj (.text:HibernateRTCSet)
+                  00010054    0000002a                   : gpio.obj (.text:GPIODirModeSet)
+                  0001007e    0000002a     rtsv7M4_T_le_v4SPD16_eabi.lib : strspn.obj (.text)
+                  000100a8    00000028     driverlib.lib : hibernate.obj (.text:HibernateDataSet)
+                  000100d0    00000026     grlib.lib : string.obj (.text:GrFontInfoGet)
+                  000100f6    00000002     --HOLE-- [fill = 0]
+                  000100f8    00000024     driverlib.lib : hibernate.obj (.text:HibernateDataGet)
+                  0001011c    00000024     rtsv7M4_T_le_v4SPD16_eabi.lib : strcspn.obj (.text)
+                  00010140    00000022     grlib.lib : string.obj (.text:GrFontGlyphDataGet)
+                  00010162    0000001e     driverlib.lib : adc.obj (.text:ADCSequenceDataGet)
+                  00010180    0000001e     grlib.lib : string.obj (.text:GrFontCodepageGet)
+                  0001019e    0000001e     rtsv7M4_T_le_v4SPD16_eabi.lib : strcat.obj (.text)
+                  000101bc    00000018     driverlib.lib : adc.obj (.text:ADCProcessorTrigger)
+                  000101d4    00000018                   : hibernate.obj (.text:HibernateIntStatus)
+                  000101ec    00000018     rtsv7M4_T_le_v4SPD16_eabi.lib : args_main.obj (.text)
+                  00010204    00000018                                   : strcmp.obj (.text)
+                  0001021c    00000016     grlib.lib : string.obj (.text:GrStringDraw)
+                  00010232    00000002     --HOLE-- [fill = 0]
+                  00010234    00000014     driverlib.lib : hibernate.obj (.text:HibernateEnableExpClk)
+                  00010248    00000014                   : hibernate.obj (.text:HibernateIntClear)
+                  0001025c    00000014                   : hibernate.obj (.text:HibernateRTCEnable)
+                  00010270    00000014                   : hibernate.obj (.text:HibernateRequest)
+                  00010284    00000014     rtsv7M4_T_le_v4SPD16_eabi.lib : _lock.obj (.text)
+                  00010298    00000014                                   : strcpy.obj (.text)
+                  000102ac    00000014                                   : strlen.obj (.text)
+                  000102c0    00000012     driverlib.lib : gpio.obj (.text:GPIOPinTypeADC)
+                  000102d2    00000012                   : timer.obj (.text:TimerLoadSet)
+                  000102e4    00000010                   : hibernate.obj (.text:HibernateRTCMatchSet)
+                  000102f4    00000010                   : hibernate.obj (.text:HibernateRTCSSGet)
+                  00010304    00000010                   : hibernate.obj (.text:HibernateRTCTrimSet)
+                  00010314    00000010                   : hibernate.obj (.text:_HibernateWriteComplete)
+                  00010324    0000000e                   : adc.obj (.text:ADCSequenceEnable)
+                  00010332    0000000e                   : timer.obj (.text:TimerEnable)
+                  00010340    0000000e     rtsv7M4_T_le_v4SPD16_eabi.lib : copy_decompress_none.obj (.text:decompress:none)
+                  0001034e    00000002     --HOLE-- [fill = 0]
+                  00010350    0000000c     driverlib.lib : hibernate.obj (.text:HibernateRTCGet)
+                  0001035c    0000000c     rtsv7M4_T_le_v4SPD16_eabi.lib : copy_zero_init.obj (.text:decompress:ZI)
+                  00010368    0000000c     tm4c123gh6pge_startup_ccs.obj (.text)
+                  00010374    0000000a     driverlib.lib : adc.obj (.text:ADCIntClear)
+                  0001037e    00000008                   : sw_crc.obj (.text:Crc16Array)
+                  00010386    00000008     grlib.lib : charmap.obj (.text:GrMapISO8859_1_Unicode)
+                  0001038e    00000008     driverlib.lib : timer.obj (.text:TimerIntEnable)
+                  00010396    00000006     grlib.lib : string.obj (.text:GrContextFontSet)
+                  0001039c    00000006     driverlib.lib : sysctl.obj (.text:SysCtlDelay)
+                  000103a2    00000006                   : timer.obj (.text:TimerClockSourceSet)
+                  000103a8    00000004                   : timer.obj (.text:TimerIntClear)
+                  000103ac    00000004     rtsv7M4_T_le_v4SPD16_eabi.lib : pre_init.obj (.text)
 
-.cinit     0    00010358    00000160     
-                  00010358    00000125     (.cinit..data.load) [load image, compression = lzss]
-                  0001047d    00000003     --HOLE-- [fill = 0]
-                  00010480    0000000c     (__TI_handler_table)
-                  0001048c    00000004     --HOLE-- [fill = 0]
-                  00010490    00000008     (.cinit..bss.load) [load image, compression = zero_init]
-                  00010498    00000008     (.cinit..vtable.load) [load image, compression = zero_init]
-                  000104a0    00000018     (__TI_cinit_table)
+.cinit     0    000103b0    00000168     
+                  000103b0    0000012e     (.cinit..data.load) [load image, compression = lzss]
+                  000104de    00000002     --HOLE-- [fill = 0]
+                  000104e0    0000000c     (__TI_handler_table)
+                  000104ec    00000004     --HOLE-- [fill = 0]
+                  000104f0    00000008     (.cinit..bss.load) [load image, compression = zero_init]
+                  000104f8    00000008     (.cinit..vtable.load) [load image, compression = zero_init]
+                  00010500    00000018     (__TI_cinit_table)
 
 .init_array 
 *          0    00000000    00000000     UNINITIALIZED
@@ -181,55 +181,54 @@ section   page    origin      length       input sections
 .vtable    0    20000000    0000026c     UNINITIALIZED
                   20000000    0000026c     driverlib.lib : interrupt.obj (.vtable)
 
-.bss       0    2000026c    000007ba     UNINITIALIZED
+.bss       0    2000026c    00000a1e     UNINITIALIZED
                   2000026c    00000234     sd_card.obj (.bss:g_sFatFs)
                   200004a0    00000224     sd_card.obj (.bss:g_sFileObject)
-                  200006c4    00000200     ff.obj (.bss:LfnBuf)
-                  200008c4    00000050     sd_card.obj (.bss:g_pcTmpBuf)
-                  20000914    00000040     sd_card.obj (.bss:g_pcCmdBuf)
-                  20000954    00000030     (.common:ConfigState)
-                  20000984    0000002c     (.common:g_sContext)
-                  200009b0    00000024     cmdline.obj (.bss:g_ppcArgv)
-                  200009d4    00000024     sd_card.obj (.bss:g_sDirObject)
-                  200009f8    00000020     sd_card.obj (.bss:g_sFileInfo)
-                  20000a18    00000004     ff.obj (.bss:FatFs)
-                  20000a1c    00000004     (.common:g_psGrLibDefaults)
-                  20000a20    00000003     mmc-dk-tm4c123g.obj (.bss)
-                  20000a23    00000001     --HOLE--
-                  20000a24    00000002     ff.obj (.bss)
+                  200006c4    00000224     (.common:logFile)
+                  200008e8    00000200     ff.obj (.bss:LfnBuf)
+                  20000ae8    00000070     (.common:ConfigState)
+                  20000b58    00000050     sd_card.obj (.bss:g_pcTmpBuf)
+                  20000ba8    00000040     sd_card.obj (.bss:g_pcCmdBuf)
+                  20000be8    0000002c     (.common:g_sContext)
+                  20000c14    00000024     cmdline.obj (.bss:g_ppcArgv)
+                  20000c38    00000024     sd_card.obj (.bss:g_sDirObject)
+                  20000c5c    00000020     sd_card.obj (.bss:g_sFileInfo)
+                  20000c7c    00000004     ff.obj (.bss:FatFs)
+                  20000c80    00000004     (.common:g_psGrLibDefaults)
+                  20000c84    00000003     mmc-dk-tm4c123g.obj (.bss)
+                  20000c87    00000001     --HOLE--
+                  20000c88    00000002     ff.obj (.bss)
 
-.stack     0    20000a28    00000200     UNINITIALIZED
-                  20000a28    00000200     --HOLE--
+.stack     0    20000c8c    00000200     UNINITIALIZED
+                  20000c8c    00000200     --HOLE--
 
-.data      0    20000c28    000001cc     UNINITIALIZED
-                  20000c28    000000a0     sd_card.obj (.data:g_psFResultStrings)
-                  20000cc8    0000009c     sd_card.obj (.data:g_psCmdTable)
-                  20000d64    00000050     sd_card.obj (.data:g_pcCwdBuf)
-                  20000db4    00000013     cfal96x64x16.obj (.data:g_ui8DisplayInitCommands)
-                  20000dc7    00000001     --HOLE--
-                  20000dc8    0000000c     rtsv7M4_T_le_v4SPD16_eabi.lib : exit.obj (.data:$O1$$)
-                  20000dd4    00000008                                   : _lock.obj (.data:$O1$$)
-                  20000ddc    00000005     uartstdio.obj (.data)
-                  20000de1    00000002     mmc-dk-tm4c123g.obj (.data)
-                  20000de3    00000001     --HOLE--
-                  20000de4    00000004     FP_acquire.obj (.data)
-                  20000de8    00000004     rtsv7M4_T_le_v4SPD16_eabi.lib : stkdepth_vars.obj (.data)
-                  20000dec    00000004                                   : strtok.obj (.data)
-                  20000df0    00000004     ustdlib.obj (.data)
+.data      0    20000e8c    000001d8     UNINITIALIZED
+                  20000e8c    000000a8     sd_card.obj (.data:g_psCmdTable)
+                  20000f34    000000a0     sd_card.obj (.data:g_psFResultStrings)
+                  20000fd4    00000050     sd_card.obj (.data:g_pcCwdBuf)
+                  20001024    00000013     cfal96x64x16.obj (.data:g_ui8DisplayInitCommands)
+                  20001037    00000001     --HOLE--
+                  20001038    0000000c     rtsv7M4_T_le_v4SPD16_eabi.lib : exit.obj (.data:$O1$$)
+                  20001044    00000008                                   : _lock.obj (.data:$O1$$)
+                  2000104c    00000005     uartstdio.obj (.data)
+                  20001051    00000002     mmc-dk-tm4c123g.obj (.data)
+                  20001053    00000001     --HOLE--
+                  20001054    00000004     FP_acquire.obj (.data)
+                  20001058    00000004     rtsv7M4_T_le_v4SPD16_eabi.lib : stkdepth_vars.obj (.data)
+                  2000105c    00000004                                   : strtok.obj (.data)
+                  20001060    00000004     ustdlib.obj (.data)
 
 MODULE SUMMARY
 
        Module                          code    ro data   rw data
        ------                          ----    -------   -------
     .\
-       sd_card.obj                     2304    634       1720   
-       ustdlib.obj                     3204    94        4      
-       FP_acquire.obj                  1916    22        52     
-       uartstdio.obj                   1244    46        5      
+       sd_card.obj                     2316    682       1732   
+       FP_acquire.obj                  1944    22        664    
        Main.obj                        888     0         44     
        tm4c123gh6pge_startup_ccs.obj   12      620       0      
     +--+-------------------------------+-------+---------+---------+
-       Total:                          9568    1416      1825   
+       Total:                          5160    1324      2440   
                                                                 
     .\drivers\
        cfal96x64x16.obj                1660    40        19     
@@ -252,9 +251,11 @@ MODULE SUMMARY
        Total:                          296     30520     0      
                                                                 
     .\utils\
+       ustdlib.obj                     3204    94        4      
+       uartstdio.obj                   1244    46        5      
        cmdline.obj                     172     0         36     
     +--+-------------------------------+-------+---------+---------+
-       Total:                          172     0         36     
+       Total:                          4620    140       45     
                                                                 
     C:/ti/TivaWare_C_Series-2.1.3.156/driverlib/ccs/Debug/driverlib.lib
        interrupt.obj                   260     112       620    
@@ -306,22 +307,22 @@ MODULE SUMMARY
        Total:                          1172    0         28     
                                                                 
        Stack:                          0       0         512    
-       Linker Generated:               0       345       0      
+       Linker Generated:               0       354       0      
     +--+-------------------------------+-------+---------+---------+
-       Grand Total:                    32532   34186     3567   
+       Grand Total:                    32572   34243     4191   
 
 
 LINKER GENERATED COPY TABLES
 
-__TI_cinit_table @ 000104a0 records: 3, size/record: 8, table size: 24
-	.data: load addr=00010358, load size=00000125 bytes, run addr=20000c28, run size=000001cc bytes, compression=lzss
-	.bss: load addr=00010490, load size=00000008 bytes, run addr=2000026c, run size=000007ba bytes, compression=zero_init
-	.vtable: load addr=00010498, load size=00000008 bytes, run addr=20000000, run size=0000026c bytes, compression=zero_init
+__TI_cinit_table @ 00010500 records: 3, size/record: 8, table size: 24
+	.data: load addr=000103b0, load size=0000012e bytes, run addr=20000e8c, run size=000001d8 bytes, compression=lzss
+	.bss: load addr=000104f0, load size=00000008 bytes, run addr=2000026c, run size=00000a1e bytes, compression=zero_init
+	.vtable: load addr=000104f8, load size=00000008 bytes, run addr=20000000, run size=0000026c bytes, compression=zero_init
 
 
 LINKER GENERATED HANDLER TABLE
 
-__TI_handler_table @ 00010480 records: 3, size/record: 4, table size: 12
+__TI_handler_table @ 000104e0 records: 3, size/record: 4, table size: 12
 	index: 0, handler: __TI_zero_init
 	index: 1, handler: __TI_decompress_lzss
 	index: 2, handler: __TI_decompress_none
@@ -331,208 +332,211 @@ GLOBAL SYMBOLS: SORTED ALPHABETICALLY BY Name
 
 address   name                           
 -------   ----                           
-0001031d  ADCIntClear                    
-0000ff49  ADCIntStatus                   
-00010165  ADCProcessorTrigger            
-0000fc11  ADCSequenceConfigure           
-0001010b  ADCSequenceDataGet             
-000102cd  ADCSequenceEnable              
-0000f783  ADCSequenceStepConfigure       
-0000dc6d  ADCSetup                       
-0000d9b5  AcquireSetup                   
-0000ea63  BrdConnConfigDisplay           
-0000fcbd  C$$EXIT                        
-0000e367  CFAL96x64x16Init               
-0000f5b5  CmdLineProcess                 
-0000d109  Cmd_cat                        
-0000cfdd  Cmd_cd                         
-0000d285  Cmd_date                       
-0000d1ad  Cmd_help                       
-0000d453  Cmd_log                        
-0000d459  Cmd_log_config                 
-0000ce6f  Cmd_ls                         
-0000d0cd  Cmd_pwd                        
-0000d389  Cmd_time                       
-20000954  ConfigState                    
-0000f429  Crc16                          
-00010327  Crc16Array                     
-0000fffd  GPIODirModeSet                 
-0000efc9  GPIOPadConfigSet               
-0000fda9  GPIOPinConfigure               
-00010269  GPIOPinTypeADC                 
-0000dd17  GetHibData                     
-0001033f  GrContextFontSet               
-0000f8e9  GrContextInit                  
-0000f4f5  GrDefaultStringRenderer        
-0000ffa5  GrFontBaselineGet              
-00010129  GrFontCodepageGet              
-000100e9  GrFontGlyphDataGet             
-0000ed75  GrFontGlyphRender              
-00010079  GrFontInfoGet                  
-0001032f  GrMapISO8859_1_Unicode         
-0000f6fd  GrRectFill                     
-000101c5  GrStringDraw                   
-0000ff77  GrStringNextCharGet            
-0000f951  GrStringWidthGet               
-000100a1  HibernateDataGet               
-00010051  HibernateDataSet               
-000101dd  HibernateEnableExpClk          
-000101f1  HibernateIntClear              
-0001017d  HibernateIntStatus             
-00010205  HibernateRTCEnable             
-000102f9  HibernateRTCGet                
-0001028d  HibernateRTCMatchSet           
-0001029d  HibernateRTCSSGet              
-0000ffd1  HibernateRTCSet                
-000102ad  HibernateRTCTrimSet            
-00010219  HibernateRequest               
-0000faf1  HibernateWakeSet               
-0000e9fd  InitConsole                    
-0000f9b9  IntDisable                     
-0000fa21  IntEnable                      
-0000fee1  IntRegister                    
-0000d869  RTCHandler                     
-0000dbfd  RTCMatchGenerate               
-0000ea51  RTCSetup                       
-00010311  ResetISR                       
+00010375  ADCIntClear                    
+0000ffa1  ADCIntStatus                   
+000101bd  ADCProcessorTrigger            
+0000fc69  ADCSequenceConfigure           
+00010163  ADCSequenceDataGet             
+00010325  ADCSequenceEnable              
+0000f7db  ADCSequenceStepConfigure       
+0000dcc5  ADCSetup                       
+0000da11  AcquireSetup                   
+0000eabb  BrdConnConfigDisplay           
+0000fd15  C$$EXIT                        
+0000e3bf  CFAL96x64x16Init               
+0000f60d  CmdLineProcess                 
+0000d139  Cmd_cat                        
+0000d00d  Cmd_cd                         
+0000d2b5  Cmd_date                       
+0000d1dd  Cmd_help                       
+0000d483  Cmd_log                        
+0000d489  Cmd_log_config                 
+0000d497  Cmd_log_file                   
+0000ce9f  Cmd_ls                         
+0000d0fd  Cmd_pwd                        
+0000d3b9  Cmd_time                       
+20000ae8  ConfigState                    
+0000f481  Crc16                          
+0001037f  Crc16Array                     
+00010055  GPIODirModeSet                 
+0000f021  GPIOPadConfigSet               
+0000fe01  GPIOPinConfigure               
+000102c1  GPIOPinTypeADC                 
+0000dd6f  GetHibData                     
+00010397  GrContextFontSet               
+0000f941  GrContextInit                  
+0000f54d  GrDefaultStringRenderer        
+0000fffd  GrFontBaselineGet              
+00010181  GrFontCodepageGet              
+00010141  GrFontGlyphDataGet             
+0000edcd  GrFontGlyphRender              
+000100d1  GrFontInfoGet                  
+00010387  GrMapISO8859_1_Unicode         
+0000f755  GrRectFill                     
+0001021d  GrStringDraw                   
+0000ffcf  GrStringNextCharGet            
+0000f9a9  GrStringWidthGet               
+000100f9  HibernateDataGet               
+000100a9  HibernateDataSet               
+00010235  HibernateEnableExpClk          
+00010249  HibernateIntClear              
+000101d5  HibernateIntStatus             
+0001025d  HibernateRTCEnable             
+00010351  HibernateRTCGet                
+000102e5  HibernateRTCMatchSet           
+000102f5  HibernateRTCSSGet              
+00010029  HibernateRTCSet                
+00010305  HibernateRTCTrimSet            
+00010271  HibernateRequest               
+0000fb49  HibernateWakeSet               
+0000ea55  InitConsole                    
+0000fa11  IntDisable                     
+0000fa79  IntEnable                      
+0000ff39  IntRegister                    
+0000d891  RTCHandler                     
+0000dc55  RTCMatchGenerate               
+0000eaa9  RTCSetup                       
+00010369  ResetISR                       
 UNDEFED   SHT$$INIT_ARRAY$$Base          
 UNDEFED   SHT$$INIT_ARRAY$$Limit         
-0000d4a9  SerialUI                       
-0000dd75  SetHibData                     
-0000dc57  StartLogging                   
-0000ce29  StringFromFResult              
-0000f225  SysCtlClockGet                 
-0000f335  SysCtlClockSet                 
-00010345  SysCtlDelay                    
-0000ff15  SysCtlPeripheralEnable         
-0000ce67  SysTickHandler                 
-0000d7b3  Timer0Handler                  
-0001034b  TimerClockSourceSet            
-0000fb55  TimerConfigure                 
-000102db  TimerEnable                    
-00010351  TimerIntClear                  
-00010337  TimerIntEnable                 
-0001027b  TimerLoadSet                   
-0000e521  UARTStdioConfig                
-0000e699  UARTgetc                       
-0000e5d3  UARTgets                       
-0000e9c7  UARTprintf                     
-0000e6cd  UARTvprintf                    
-0000e581  UARTwrite                      
-20000c28  __STACK_END                    
+0000d4e5  SerialUI                       
+0000ddd1  SetHibData                     
+0000dcaf  StartLogging                   
+0000ce59  StringFromFResult              
+0000f27d  SysCtlClockGet                 
+0000f38d  SysCtlClockSet                 
+0001039d  SysCtlDelay                    
+0000ff6d  SysCtlPeripheralEnable         
+0000ce97  SysTickHandler                 
+0000d7ef  Timer0Handler                  
+000103a3  TimerClockSourceSet            
+0000fbad  TimerConfigure                 
+00010333  TimerEnable                    
+000103a9  TimerIntClear                  
+0001038f  TimerIntEnable                 
+000102d3  TimerLoadSet                   
+0000e579  UARTStdioConfig                
+0000e6f1  UARTgetc                       
+0000e62b  UARTgets                       
+0000ea1f  UARTprintf                     
+0000e725  UARTvprintf                    
+0000e5d9  UARTwrite                      
+20000e8c  __STACK_END                    
 00000200  __STACK_SIZE                   
-20000c28  __STACK_TOP                    
-000104a0  __TI_CINIT_Base                
-000104b8  __TI_CINIT_Limit               
-00010480  __TI_Handler_Table_Base        
-0001048c  __TI_Handler_Table_Limit       
-0000f879  __TI_auto_init                 
-20000dc8  __TI_cleanup_ptr               
-0000fa89  __TI_decompress_lzss           
-000102e9  __TI_decompress_none           
-20000dcc  __TI_dtors_ptr                 
-20000dd0  __TI_enable_exit_profile_output
+20000e8c  __STACK_TOP                    
+00010500  __TI_CINIT_Base                
+00010518  __TI_CINIT_Limit               
+000104e0  __TI_Handler_Table_Base        
+000104ec  __TI_Handler_Table_Limit       
+0000f8d1  __TI_auto_init                 
+20001038  __TI_cleanup_ptr               
+0000fae1  __TI_decompress_lzss           
+00010341  __TI_decompress_none           
+2000103c  __TI_dtors_ptr                 
+20001040  __TI_enable_exit_profile_output
 ffffffff  __TI_pprof_out_hndl            
 ffffffff  __TI_prof_data_size            
 ffffffff  __TI_prof_data_start           
 00000000  __TI_static_base__             
-00010305  __TI_zero_init                 
-0000f0fb  __aeabi_idiv0                  
-0000f7fd  __aeabi_memclr                 
-0000f7fd  __aeabi_memclr4                
-0000f7fd  __aeabi_memclr8                
-0000f661  __aeabi_memcpy                 
-0000f661  __aeabi_memcpy4                
-0000f661  __aeabi_memcpy8                
-0000f7ff  __aeabi_memset                 
-0000f7ff  __aeabi_memset4                
-0000f7ff  __aeabi_memset8                
-0000fe31  __aeabi_uidiv                  
-0000fe31  __aeabi_uidivmod               
+0001035d  __TI_zero_init                 
+0000f153  __aeabi_idiv0                  
+0000f855  __aeabi_memclr                 
+0000f855  __aeabi_memclr4                
+0000f855  __aeabi_memclr8                
+0000f6b9  __aeabi_memcpy                 
+0000f6b9  __aeabi_memcpy4                
+0000f6b9  __aeabi_memcpy8                
+0000f857  __aeabi_memset                 
+0000f857  __aeabi_memset4                
+0000f857  __aeabi_memset8                
+0000fe89  __aeabi_uidiv                  
+0000fe89  __aeabi_uidivmod               
 ffffffff  __binit__                      
 ffffffff  __c_args__                     
-0000f877  __mpu_init                     
-20000a28  __stack                        
-00010195  _args_main                     
-0000fc69  _c_int00                       
-20000dd4  _lock                          
-0001023b  _nop                           
-00010233  _register_lock                 
-0001022d  _register_unlock               
-0000fc0f  _system_post_cinit             
-00010355  _system_pre_init               
-20000dd8  _unlock                        
-0000fcc1  abort                          
+0000f8cf  __mpu_init                     
+20000c8c  __stack                        
+000101ed  _args_main                     
+0000fcc1  _c_int00                       
+20001044  _lock                          
+00010293  _nop                           
+0001028b  _register_lock                 
+00010285  _register_unlock               
+0000fc67  _system_post_cinit             
+000103ad  _system_pre_init               
+20001048  _unlock                        
+0000fd19  abort                          
 ffffffff  binit                          
-000086d5  clust2sect                     
-0000fd11  copy_in                        
-0000c87d  disk_initialize                
-0000cbcd  disk_ioctl                     
-0000ca3b  disk_read                      
-0000ca21  disk_status                    
-0000cdcf  disk_timerproc                 
-0000cae5  disk_write                     
-0000fcc9  exit                           
-0000b561  f_chmod                        
-0000ac09  f_close                        
-0000b015  f_getfree                      
-0000ac29  f_lseek                        
-0000b371  f_mkdir                        
-0000a3a3  f_mount                        
-0000a3f9  f_open                         
-0000ae77  f_opendir                      
-0000a615  f_read                         
-0000af2d  f_readdir                      
-0000b67d  f_rename                       
-0000afbd  f_stat                         
-0000ab0d  f_sync                         
-0000b177  f_truncate                     
-0000b26b  f_unlink                       
-0000b5f5  f_utime                        
-0000a869  f_write                        
-0000f0fd  ff_convert                     
-0000f1cb  ff_wtoupper                    
+00008705  clust2sect                     
+0000fd69  copy_in                        
+0000c8ad  disk_initialize                
+0000cbfd  disk_ioctl                     
+0000ca6b  disk_read                      
+0000ca51  disk_status                    
+0000cdff  disk_timerproc                 
+0000cb15  disk_write                     
+0000fd21  exit                           
+0000b591  f_chmod                        
+0000ac39  f_close                        
+0000b045  f_getfree                      
+0000ac59  f_lseek                        
+0000b3a1  f_mkdir                        
+0000a3d3  f_mount                        
+0000a429  f_open                         
+0000aea7  f_opendir                      
+UNDEFED   f_printf                       
+0000a645  f_read                         
+0000af5d  f_readdir                      
+0000b6ad  f_rename                       
+0000afed  f_stat                         
+0000ab3d  f_sync                         
+0000b1a7  f_truncate                     
+0000b29b  f_unlink                       
+0000b625  f_utime                        
+0000a899  f_write                        
+0000f155  ff_convert                     
+0000f223  ff_wtoupper                    
 20000000  g_pfnRAMVectors                
 00000000  g_pfnVectors                   
-20000cc8  g_psCmdTable                   
-000083f8  g_psDefaultCodePointMapTable   
-20000c28  g_psFResultStrings             
-0000837c  g_sCFAL96x64x16                
-20000984  g_sContext                     
-00008118  g_sFontFixed6x8                
-00009109  gen_numname                    
-00008705  get_fat                        
-0000ce13  get_fattime                    
-0000d729  itoc                           
-0000ec57  main                           
-20000de8  main_func_sp                   
-0000f661  memcpy                         
-0000f805  memset                         
-00008829  put_fat                        
-00010147  strcat                         
-000101ad  strcmp                         
-00010241  strcpy                         
-000100c5  strcspn                        
-00010255  strlen                         
-0000feab  strncpy                        
-00010027  strspn                         
-0000fdf1  strtok                         
-0000bcc1  ulocaltime                     
-0000bebf  umktime                        
-0000c439  urand                          
-0000bc91  usnprintf                      
-0000bc5f  usprintf                       
-0000c429  usrand                         
-0000c3a1  ustrcasecmp                    
-0000c415  ustrcmp                        
-0000c2a5  ustrlen                        
-0000c2fd  ustrncasecmp                   
-0000c3b5  ustrncmp                       
-0000b7dd  ustrncpy                       
-0000c2c7  ustrstr                        
-0000c06d  ustrtof                        
-0000bf35  ustrtoul                       
-0000b835  uvsnprintf                     
+20000e8c  g_psCmdTable                   
+00008428  g_psDefaultCodePointMapTable   
+20000f34  g_psFResultStrings             
+000083ac  g_sCFAL96x64x16                
+20000be8  g_sContext                     
+00008148  g_sFontFixed6x8                
+00009139  gen_numname                    
+00008735  get_fat                        
+0000ce43  get_fattime                    
+0000d765  itoc                           
+200006c4  logFile                        
+0000ecaf  main                           
+20001058  main_func_sp                   
+0000f6b9  memcpy                         
+0000f85d  memset                         
+00008859  put_fat                        
+0001019f  strcat                         
+00010205  strcmp                         
+00010299  strcpy                         
+0001011d  strcspn                        
+000102ad  strlen                         
+0000ff03  strncpy                        
+0001007f  strspn                         
+0000fe49  strtok                         
+0000bcf1  ulocaltime                     
+0000beef  umktime                        
+0000c469  urand                          
+0000bcc1  usnprintf                      
+0000bc8f  usprintf                       
+0000c459  usrand                         
+0000c3d1  ustrcasecmp                    
+0000c445  ustrcmp                        
+0000c2d5  ustrlen                        
+0000c32d  ustrncasecmp                   
+0000c3e5  ustrncmp                       
+0000b80d  ustrncpy                       
+0000c2f7  ustrstr                        
+0000c09d  ustrtof                        
+0000bf65  ustrtoul                       
+0000b865  uvsnprintf                     
 
 
 GLOBAL SYMBOLS: SORTED BY Symbol Address 
@@ -542,197 +546,199 @@ address   name
 00000000  __TI_static_base__             
 00000000  g_pfnVectors                   
 00000200  __STACK_SIZE                   
-00008118  g_sFontFixed6x8                
-0000837c  g_sCFAL96x64x16                
-000083f8  g_psDefaultCodePointMapTable   
-000086d5  clust2sect                     
-00008705  get_fat                        
-00008829  put_fat                        
-00009109  gen_numname                    
-0000a3a3  f_mount                        
-0000a3f9  f_open                         
-0000a615  f_read                         
-0000a869  f_write                        
-0000ab0d  f_sync                         
-0000ac09  f_close                        
-0000ac29  f_lseek                        
-0000ae77  f_opendir                      
-0000af2d  f_readdir                      
-0000afbd  f_stat                         
-0000b015  f_getfree                      
-0000b177  f_truncate                     
-0000b26b  f_unlink                       
-0000b371  f_mkdir                        
-0000b561  f_chmod                        
-0000b5f5  f_utime                        
-0000b67d  f_rename                       
-0000b7dd  ustrncpy                       
-0000b835  uvsnprintf                     
-0000bc5f  usprintf                       
-0000bc91  usnprintf                      
-0000bcc1  ulocaltime                     
-0000bebf  umktime                        
-0000bf35  ustrtoul                       
-0000c06d  ustrtof                        
-0000c2a5  ustrlen                        
-0000c2c7  ustrstr                        
-0000c2fd  ustrncasecmp                   
-0000c3a1  ustrcasecmp                    
-0000c3b5  ustrncmp                       
-0000c415  ustrcmp                        
-0000c429  usrand                         
-0000c439  urand                          
-0000c87d  disk_initialize                
-0000ca21  disk_status                    
-0000ca3b  disk_read                      
-0000cae5  disk_write                     
-0000cbcd  disk_ioctl                     
-0000cdcf  disk_timerproc                 
-0000ce13  get_fattime                    
-0000ce29  StringFromFResult              
-0000ce67  SysTickHandler                 
-0000ce6f  Cmd_ls                         
-0000cfdd  Cmd_cd                         
-0000d0cd  Cmd_pwd                        
-0000d109  Cmd_cat                        
-0000d1ad  Cmd_help                       
-0000d285  Cmd_date                       
-0000d389  Cmd_time                       
-0000d453  Cmd_log                        
-0000d459  Cmd_log_config                 
-0000d4a9  SerialUI                       
-0000d729  itoc                           
-0000d7b3  Timer0Handler                  
-0000d869  RTCHandler                     
-0000d9b5  AcquireSetup                   
-0000dbfd  RTCMatchGenerate               
-0000dc57  StartLogging                   
-0000dc6d  ADCSetup                       
-0000dd17  GetHibData                     
-0000dd75  SetHibData                     
-0000e367  CFAL96x64x16Init               
-0000e521  UARTStdioConfig                
-0000e581  UARTwrite                      
-0000e5d3  UARTgets                       
-0000e699  UARTgetc                       
-0000e6cd  UARTvprintf                    
-0000e9c7  UARTprintf                     
-0000e9fd  InitConsole                    
-0000ea51  RTCSetup                       
-0000ea63  BrdConnConfigDisplay           
-0000ec57  main                           
-0000ed75  GrFontGlyphRender              
-0000efc9  GPIOPadConfigSet               
-0000f0fb  __aeabi_idiv0                  
-0000f0fd  ff_convert                     
-0000f1cb  ff_wtoupper                    
-0000f225  SysCtlClockGet                 
-0000f335  SysCtlClockSet                 
-0000f429  Crc16                          
-0000f4f5  GrDefaultStringRenderer        
-0000f5b5  CmdLineProcess                 
-0000f661  __aeabi_memcpy                 
-0000f661  __aeabi_memcpy4                
-0000f661  __aeabi_memcpy8                
-0000f661  memcpy                         
-0000f6fd  GrRectFill                     
-0000f783  ADCSequenceStepConfigure       
-0000f7fd  __aeabi_memclr                 
-0000f7fd  __aeabi_memclr4                
-0000f7fd  __aeabi_memclr8                
-0000f7ff  __aeabi_memset                 
-0000f7ff  __aeabi_memset4                
-0000f7ff  __aeabi_memset8                
-0000f805  memset                         
-0000f877  __mpu_init                     
-0000f879  __TI_auto_init                 
-0000f8e9  GrContextInit                  
-0000f951  GrStringWidthGet               
-0000f9b9  IntDisable                     
-0000fa21  IntEnable                      
-0000fa89  __TI_decompress_lzss           
-0000faf1  HibernateWakeSet               
-0000fb55  TimerConfigure                 
-0000fc0f  _system_post_cinit             
-0000fc11  ADCSequenceConfigure           
-0000fc69  _c_int00                       
-0000fcbd  C$$EXIT                        
-0000fcc1  abort                          
-0000fcc9  exit                           
-0000fd11  copy_in                        
-0000fda9  GPIOPinConfigure               
-0000fdf1  strtok                         
-0000fe31  __aeabi_uidiv                  
-0000fe31  __aeabi_uidivmod               
-0000feab  strncpy                        
-0000fee1  IntRegister                    
-0000ff15  SysCtlPeripheralEnable         
-0000ff49  ADCIntStatus                   
-0000ff77  GrStringNextCharGet            
-0000ffa5  GrFontBaselineGet              
-0000ffd1  HibernateRTCSet                
-0000fffd  GPIODirModeSet                 
-00010027  strspn                         
-00010051  HibernateDataSet               
-00010079  GrFontInfoGet                  
-000100a1  HibernateDataGet               
-000100c5  strcspn                        
-000100e9  GrFontGlyphDataGet             
-0001010b  ADCSequenceDataGet             
-00010129  GrFontCodepageGet              
-00010147  strcat                         
-00010165  ADCProcessorTrigger            
-0001017d  HibernateIntStatus             
-00010195  _args_main                     
-000101ad  strcmp                         
-000101c5  GrStringDraw                   
-000101dd  HibernateEnableExpClk          
-000101f1  HibernateIntClear              
-00010205  HibernateRTCEnable             
-00010219  HibernateRequest               
-0001022d  _register_unlock               
-00010233  _register_lock                 
-0001023b  _nop                           
-00010241  strcpy                         
-00010255  strlen                         
-00010269  GPIOPinTypeADC                 
-0001027b  TimerLoadSet                   
-0001028d  HibernateRTCMatchSet           
-0001029d  HibernateRTCSSGet              
-000102ad  HibernateRTCTrimSet            
-000102cd  ADCSequenceEnable              
-000102db  TimerEnable                    
-000102e9  __TI_decompress_none           
-000102f9  HibernateRTCGet                
-00010305  __TI_zero_init                 
-00010311  ResetISR                       
-0001031d  ADCIntClear                    
-00010327  Crc16Array                     
-0001032f  GrMapISO8859_1_Unicode         
-00010337  TimerIntEnable                 
-0001033f  GrContextFontSet               
-00010345  SysCtlDelay                    
-0001034b  TimerClockSourceSet            
-00010351  TimerIntClear                  
-00010355  _system_pre_init               
-00010480  __TI_Handler_Table_Base        
-0001048c  __TI_Handler_Table_Limit       
-000104a0  __TI_CINIT_Base                
-000104b8  __TI_CINIT_Limit               
+00008148  g_sFontFixed6x8                
+000083ac  g_sCFAL96x64x16                
+00008428  g_psDefaultCodePointMapTable   
+00008705  clust2sect                     
+00008735  get_fat                        
+00008859  put_fat                        
+00009139  gen_numname                    
+0000a3d3  f_mount                        
+0000a429  f_open                         
+0000a645  f_read                         
+0000a899  f_write                        
+0000ab3d  f_sync                         
+0000ac39  f_close                        
+0000ac59  f_lseek                        
+0000aea7  f_opendir                      
+0000af5d  f_readdir                      
+0000afed  f_stat                         
+0000b045  f_getfree                      
+0000b1a7  f_truncate                     
+0000b29b  f_unlink                       
+0000b3a1  f_mkdir                        
+0000b591  f_chmod                        
+0000b625  f_utime                        
+0000b6ad  f_rename                       
+0000b80d  ustrncpy                       
+0000b865  uvsnprintf                     
+0000bc8f  usprintf                       
+0000bcc1  usnprintf                      
+0000bcf1  ulocaltime                     
+0000beef  umktime                        
+0000bf65  ustrtoul                       
+0000c09d  ustrtof                        
+0000c2d5  ustrlen                        
+0000c2f7  ustrstr                        
+0000c32d  ustrncasecmp                   
+0000c3d1  ustrcasecmp                    
+0000c3e5  ustrncmp                       
+0000c445  ustrcmp                        
+0000c459  usrand                         
+0000c469  urand                          
+0000c8ad  disk_initialize                
+0000ca51  disk_status                    
+0000ca6b  disk_read                      
+0000cb15  disk_write                     
+0000cbfd  disk_ioctl                     
+0000cdff  disk_timerproc                 
+0000ce43  get_fattime                    
+0000ce59  StringFromFResult              
+0000ce97  SysTickHandler                 
+0000ce9f  Cmd_ls                         
+0000d00d  Cmd_cd                         
+0000d0fd  Cmd_pwd                        
+0000d139  Cmd_cat                        
+0000d1dd  Cmd_help                       
+0000d2b5  Cmd_date                       
+0000d3b9  Cmd_time                       
+0000d483  Cmd_log                        
+0000d489  Cmd_log_config                 
+0000d497  Cmd_log_file                   
+0000d4e5  SerialUI                       
+0000d765  itoc                           
+0000d7ef  Timer0Handler                  
+0000d891  RTCHandler                     
+0000da11  AcquireSetup                   
+0000dc55  RTCMatchGenerate               
+0000dcaf  StartLogging                   
+0000dcc5  ADCSetup                       
+0000dd6f  GetHibData                     
+0000ddd1  SetHibData                     
+0000e3bf  CFAL96x64x16Init               
+0000e579  UARTStdioConfig                
+0000e5d9  UARTwrite                      
+0000e62b  UARTgets                       
+0000e6f1  UARTgetc                       
+0000e725  UARTvprintf                    
+0000ea1f  UARTprintf                     
+0000ea55  InitConsole                    
+0000eaa9  RTCSetup                       
+0000eabb  BrdConnConfigDisplay           
+0000ecaf  main                           
+0000edcd  GrFontGlyphRender              
+0000f021  GPIOPadConfigSet               
+0000f153  __aeabi_idiv0                  
+0000f155  ff_convert                     
+0000f223  ff_wtoupper                    
+0000f27d  SysCtlClockGet                 
+0000f38d  SysCtlClockSet                 
+0000f481  Crc16                          
+0000f54d  GrDefaultStringRenderer        
+0000f60d  CmdLineProcess                 
+0000f6b9  __aeabi_memcpy                 
+0000f6b9  __aeabi_memcpy4                
+0000f6b9  __aeabi_memcpy8                
+0000f6b9  memcpy                         
+0000f755  GrRectFill                     
+0000f7db  ADCSequenceStepConfigure       
+0000f855  __aeabi_memclr                 
+0000f855  __aeabi_memclr4                
+0000f855  __aeabi_memclr8                
+0000f857  __aeabi_memset                 
+0000f857  __aeabi_memset4                
+0000f857  __aeabi_memset8                
+0000f85d  memset                         
+0000f8cf  __mpu_init                     
+0000f8d1  __TI_auto_init                 
+0000f941  GrContextInit                  
+0000f9a9  GrStringWidthGet               
+0000fa11  IntDisable                     
+0000fa79  IntEnable                      
+0000fae1  __TI_decompress_lzss           
+0000fb49  HibernateWakeSet               
+0000fbad  TimerConfigure                 
+0000fc67  _system_post_cinit             
+0000fc69  ADCSequenceConfigure           
+0000fcc1  _c_int00                       
+0000fd15  C$$EXIT                        
+0000fd19  abort                          
+0000fd21  exit                           
+0000fd69  copy_in                        
+0000fe01  GPIOPinConfigure               
+0000fe49  strtok                         
+0000fe89  __aeabi_uidiv                  
+0000fe89  __aeabi_uidivmod               
+0000ff03  strncpy                        
+0000ff39  IntRegister                    
+0000ff6d  SysCtlPeripheralEnable         
+0000ffa1  ADCIntStatus                   
+0000ffcf  GrStringNextCharGet            
+0000fffd  GrFontBaselineGet              
+00010029  HibernateRTCSet                
+00010055  GPIODirModeSet                 
+0001007f  strspn                         
+000100a9  HibernateDataSet               
+000100d1  GrFontInfoGet                  
+000100f9  HibernateDataGet               
+0001011d  strcspn                        
+00010141  GrFontGlyphDataGet             
+00010163  ADCSequenceDataGet             
+00010181  GrFontCodepageGet              
+0001019f  strcat                         
+000101bd  ADCProcessorTrigger            
+000101d5  HibernateIntStatus             
+000101ed  _args_main                     
+00010205  strcmp                         
+0001021d  GrStringDraw                   
+00010235  HibernateEnableExpClk          
+00010249  HibernateIntClear              
+0001025d  HibernateRTCEnable             
+00010271  HibernateRequest               
+00010285  _register_unlock               
+0001028b  _register_lock                 
+00010293  _nop                           
+00010299  strcpy                         
+000102ad  strlen                         
+000102c1  GPIOPinTypeADC                 
+000102d3  TimerLoadSet                   
+000102e5  HibernateRTCMatchSet           
+000102f5  HibernateRTCSSGet              
+00010305  HibernateRTCTrimSet            
+00010325  ADCSequenceEnable              
+00010333  TimerEnable                    
+00010341  __TI_decompress_none           
+00010351  HibernateRTCGet                
+0001035d  __TI_zero_init                 
+00010369  ResetISR                       
+00010375  ADCIntClear                    
+0001037f  Crc16Array                     
+00010387  GrMapISO8859_1_Unicode         
+0001038f  TimerIntEnable                 
+00010397  GrContextFontSet               
+0001039d  SysCtlDelay                    
+000103a3  TimerClockSourceSet            
+000103a9  TimerIntClear                  
+000103ad  _system_pre_init               
+000104e0  __TI_Handler_Table_Base        
+000104ec  __TI_Handler_Table_Limit       
+00010500  __TI_CINIT_Base                
+00010518  __TI_CINIT_Limit               
 20000000  g_pfnRAMVectors                
-20000954  ConfigState                    
-20000984  g_sContext                     
-20000a28  __stack                        
-20000c28  __STACK_END                    
-20000c28  __STACK_TOP                    
-20000c28  g_psFResultStrings             
-20000cc8  g_psCmdTable                   
-20000dc8  __TI_cleanup_ptr               
-20000dcc  __TI_dtors_ptr                 
-20000dd0  __TI_enable_exit_profile_output
-20000dd4  _lock                          
-20000dd8  _unlock                        
-20000de8  main_func_sp                   
+200006c4  logFile                        
+20000ae8  ConfigState                    
+20000be8  g_sContext                     
+20000c8c  __stack                        
+20000e8c  __STACK_END                    
+20000e8c  __STACK_TOP                    
+20000e8c  g_psCmdTable                   
+20000f34  g_psFResultStrings             
+20001038  __TI_cleanup_ptr               
+2000103c  __TI_dtors_ptr                 
+20001040  __TI_enable_exit_profile_output
+20001044  _lock                          
+20001048  _unlock                        
+20001058  main_func_sp                   
 ffffffff  __TI_pprof_out_hndl            
 ffffffff  __TI_prof_data_size            
 ffffffff  __TI_prof_data_start           
@@ -741,5 +747,6 @@ ffffffff  __c_args__
 ffffffff  binit                          
 UNDEFED   SHT$$INIT_ARRAY$$Base          
 UNDEFED   SHT$$INIT_ARRAY$$Limit         
+UNDEFED   f_printf                       
 
-[202 symbols]
+[205 symbols]

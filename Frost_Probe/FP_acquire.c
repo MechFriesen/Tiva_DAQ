@@ -9,10 +9,9 @@
 #include <string.h>
 #include <time.h>
 #include <stdio.h>
+#include "FP_acquire.h"
 #include "driverlib/adc.h"
 #include "driverlib/debug.h"
-#include "inc/hw_memmap.h"
-#include "inc/hw_ints.h"
 #include "driverlib/gpio.h"
 #include "driverlib/hibernate.h"
 #include "driverlib/interrupt.h"
@@ -23,12 +22,16 @@
 #include "utils/ustdlib.h"
 #include "driverlib/sysctl.h"
 #include "driverlib/timer.h"
-#include "FP_acquire.h"
+#include "fatfs/src/ff.h"
+#include "fatfs/src/diskio.h"
+#include "inc/hw_memmap.h"
+#include "inc/hw_ints.h"
 
 
 static volatile uint32_t RTCIntCounter = 0, TimerIntCounter = 0;     // counts number of RTC interrupts for measurement scheduling
 tCfgState ConfigState;
 static const char * const g_pcHex = "0123456789abcdef";
+FIL logFile;
 
 // A function for formatting serial output that's faster than UARTprintf (hopefully)
 uint32_t
@@ -75,14 +78,14 @@ Timer0Handler(void)
 
     // Print RTC sub-seconds
     charCount = itoc( TimeString, HibernateRTCSSGet());
-    TimeString[charCount++] = '\n';
-    UARTwrite( TimeString, charCount + 1);      // This slows down execution to about 600 Hz
+    TimeString[charCount++] = ',';
+    f_printf( &logFile, "%i, ", HibernateRTCSSGet());
 
     // Convert ADC reading
     // Create a loop if multiple analog channels are used
-    charCount = itoc( ADCString, ADC0Value);
-    ADCString[charCount++] = '\n';
-    UARTwrite( ADCString, charCount + 1);       // This slows down execution to about 600 Hz
+//    charCount = itoc( ADCString, ADC0Value);
+//    ADCString[charCount++] = '\n';
+    f_printf( &logFile, "%i\n", ADC0Value);
 
     // Reset the timer interrupt
     if( TimerIntCounter < ConfigState.MeasurementsPerSample)
@@ -96,6 +99,9 @@ RTCHandler(void)
 {
     uint32_t ui32Status, RTCWakeTime, NextMatch;
     struct tm tempDayRollover;
+    FRESULT iFResult;
+    char fPathBuf[80];
+
     // Clear interrupts
     ui32Status = HibernateIntStatus(1);
     HibernateIntClear(ui32Status);
@@ -113,7 +119,16 @@ RTCHandler(void)
     {
     }
 
-    UARTprintf("RTC sub-seconds [1/32768 s], CH0\n");
+    // Open the file for reading.
+    iFResult = f_open( &logFile, ConfigState.logFilePath, FA_WRITE);
+
+    // Return to main if f_open did not succeed
+    if(iFResult != FR_OK)
+    {
+        return(false);
+    }
+
+    f_printf( &logFile, "RTC sub-seconds [1/32768 s], CH0\n");
 
     // Set up the Timer interrupt shit
     TimerIntCounter = 0;

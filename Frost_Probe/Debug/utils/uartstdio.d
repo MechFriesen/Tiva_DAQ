@@ -1,6 +1,6 @@
 # FIXED
 
-utils/uartstdio.obj: C:/ti/TivaWare_C_Series-2.1.3.156/utils/uartstdio.c
+utils/uartstdio.obj: ../utils/uartstdio.c
 utils/uartstdio.obj: C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/stdbool.h
 utils/uartstdio.obj: C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/stdint.h
 utils/uartstdio.obj: C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/stdarg.h
@@ -17,7 +17,7 @@ utils/uartstdio.obj: C:/ti/TivaWare_C_Series-2.1.3.156/driverlib/uart.h
 utils/uartstdio.obj: C:/ti/TivaWare_C_Series-2.1.3.156/utils/uartstdio.h
 utils/uartstdio.obj: C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/stdarg.h
 
-C:/ti/TivaWare_C_Series-2.1.3.156/utils/uartstdio.c: 
+../utils/uartstdio.c: 
 C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/stdbool.h: 
 C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/stdint.h: 
 C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/stdarg.h: 

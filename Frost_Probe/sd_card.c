@@ -86,6 +86,7 @@ tCmdLineEntry g_psCmdTable[] =
     { "time",       Cmd_time,       "Change logger time" },
     { "log",        Cmd_log,        "Begin data logging" },
     { "config",     Cmd_log_config, "Configure data logging" },
+    { "select",     Cmd_log_file,   "Select file that logger saves data to" },
     { 0, 0, 0 }
 };
 
@@ -725,6 +726,12 @@ Cmd_log_config()
     {
     }
     return 0;
+}
+
+int
+Cmd_log_file(int argc, char *argv[] )
+{
+    // Get file pointer for the f_write function in FP_acquire
 }
 
 //*****************************************************************************
