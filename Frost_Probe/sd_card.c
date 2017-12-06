@@ -25,10 +25,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <time.h>
 #include "sd_card.h"
+#include "FP_acquire.h"
 #include "inc/hw_memmap.h"
 #include "driverlib/fpu.h"
 #include "driverlib/gpio.h"
+#include "driverlib/hibernate.h"
 #include "driverlib/interrupt.h"
 #include "driverlib/pin_map.h"
 #include "driverlib/rom.h"
@@ -38,6 +41,7 @@
 #include "grlib/grlib.h"
 #include "utils/cmdline.h"
 #include "utils/uartstdio.h"
+#include "utils/ustdlib.h"
 #include "fatfs/src/ff.h"
 #include "fatfs/src/diskio.h"
 #include "drivers/cfal96x64x16.h"
@@ -70,14 +74,18 @@
 ////*****************************************************************************
 tCmdLineEntry g_psCmdTable[] =
 {
-    { "help",   Cmd_help,   "Display list of commands" },
-    { "h",      Cmd_help,   "alias for help" },
-    { "?",      Cmd_help,   "alias for help" },
-    { "ls",     Cmd_ls,     "Display list of files" },
-    { "chdir",  Cmd_cd,     "Change directory" },
-    { "cd",     Cmd_cd,     "alias for chdir" },
-    { "pwd",    Cmd_pwd,    "Show current working directory" },
-    { "cat",    Cmd_cat,    "Show contents of a text file" },
+    { "help",       Cmd_help,       "Display list of commands" },
+    { "h",          Cmd_help,       "alias for help" },
+    { "?",          Cmd_help,       "alias for help" },
+    { "ls",         Cmd_ls,         "Display list of files" },
+    { "chdir",      Cmd_cd,         "Change directory" },
+    { "cd",         Cmd_cd,         "alias for chdir" },
+    { "pwd",        Cmd_pwd,        "Show current working directory" },
+    { "cat",        Cmd_cat,        "Show contents of a text file" },
+    { "date",       Cmd_date,       "Change logger date" },
+    { "time",       Cmd_time,       "Change logger time" },
+    { "log",        Cmd_log,        "Begin data logging" },
+    { "config",     Cmd_log_config, "Configure data logging" },
     { 0, 0, 0 }
 };
 
@@ -624,6 +632,101 @@ Cmd_help(int argc, char *argv[])
     return(0);
 }
 
+int
+Cmd_date()
+{
+    uint32_t MaxInputLen = 10;
+    const char** endptr = 0;
+    struct tm RealTime;
+
+    UARTprintf("System Date (DD/MM/YY): ");
+    ulocaltime(HibernateRTCGet(), &RealTime);
+    UARTprintf("%i/%i/%i\n", RealTime.tm_mday, (RealTime.tm_mon + 1),
+              (RealTime.tm_year % 100));
+
+    DateQuery:      // if any of the entered values are illogical then the following block starts over here
+    UARTprintf("To change date, enter the new date (DD/MM/YY) or press ENTER"
+            " to skip.\n");
+    char uartIN[10];
+    UARTgets(uartIN, MaxInputLen);
+
+    if(ustrtoul( uartIN, endptr, 10))
+    {
+        char* token = strtok(uartIN, "/");
+        RealTime.tm_mday = ustrtoul( token, endptr, 10);        // day of the month
+        token = strtok(NULL, "/");
+        RealTime.tm_mon = ustrtoul( token, endptr, 10) - 1;     // months since Jan
+        token = strtok(NULL, "/");
+        RealTime.tm_year = ustrtoul( token, endptr, 10) + 100;  // years since 1900
+        token = strtok(NULL, "/");
+        if( umktime(&RealTime) == -1)
+        {
+            UARTprintf("Invalid date\n");
+            goto DateQuery;
+        }
+        HibernateRTCSet(umktime(&RealTime));
+        ulocaltime(HibernateRTCGet(), &RealTime);
+        UARTprintf("New date: %i/%i/%i\n", RealTime.tm_mday, (RealTime.tm_mon + 1),
+                       (RealTime.tm_year % 100));
+    }
+    return 0;
+}
+
+int
+Cmd_time()
+{
+    uint32_t MaxInputLen = 10;
+    char uartBuf[10];
+    const char** endptr = 0;
+    struct tm RealTime;
+
+    UARTprintf("\n\nSystem Time (HH:MM:SS)\n");
+    ulocaltime(HibernateRTCGet(), &RealTime);
+    UARTprintf("%i/%02i/%02i\n", RealTime.tm_hour, (RealTime.tm_min),
+              (RealTime.tm_sec));
+
+    TimeQuery:      // returns here if time entered is invalid
+    UARTprintf("To change time, enter the new time (HH:MM:SS) or press ENTER"
+                    " to skip.\n");
+    UARTgets(uartBuf, MaxInputLen);
+
+    if(ustrtoul(uartBuf, endptr, 10))
+    {
+        char *token2 = strtok(uartBuf, ":");
+        RealTime.tm_hour = ustrtoul( token2, endptr, 10);
+        token2 = strtok(NULL, ":");
+        RealTime.tm_min = ustrtoul( token2, endptr, 10);
+        token2 = strtok(NULL, ":");
+        RealTime.tm_sec = ustrtoul( token2, endptr, 10);
+        token2 = strtok(NULL, ":");
+        HibernateRTCSet(umktime(&RealTime));
+        if( HibernateRTCGet() == -1)
+        {
+            UARTprintf("Invalid time\n");
+            goto TimeQuery;
+        }
+        ulocaltime(HibernateRTCGet(), &RealTime);
+        UARTprintf("New time: %i:%02i:%02i\n", RealTime.tm_hour, RealTime.tm_min,
+                           RealTime.tm_sec);
+    }
+
+    return 0;
+}
+
+int Cmd_log()
+{
+    return BEGIN_LOGGING;
+}
+
+int
+Cmd_log_config()
+{
+    while(!AcquireSetup())
+    {
+    }
+    return 0;
+}
+
 //*****************************************************************************
 //
 // The error routine that is called if the driver library encounters an error.
@@ -648,41 +751,6 @@ SerialUI(void)
 {
     int nStatus;
     FRESULT iFResult;
-    tRectangle sRect;
-
-
-    // Initialize the display driver.
-    CFAL96x64x16Init();
-
-    // Initialize the graphics context.
-    GrContextInit(&g_sContext, &g_sCFAL96x64x16);
-
-    // Fill the top part of the screen with blue to create the banner.
-    sRect.i16XMin = 0;
-    sRect.i16YMin = 0;
-    sRect.i16XMax = GrContextDpyWidthGet(&g_sContext) - 1;
-    sRect.i16YMax = 9;
-    GrContextForegroundSet(&g_sContext, ClrDarkBlue);
-    GrRectFill(&g_sContext, &sRect);
-
-    // Change foreground for white text.
-    GrContextForegroundSet(&g_sContext, ClrWhite);
-
-    // Put the application name in the middle of the banner.
-    GrContextFontSet(&g_sContext, g_psFontFixed6x8);
-    GrStringDrawCentered(&g_sContext, "Logger", -1,
-                         GrContextDpyWidthGet(&g_sContext) / 2, 4, 0);
-
-    // Show some instructions on the display
-    GrContextFontSet(&g_sContext, g_psFontFixed6x8);
-    GrStringDrawCentered(&g_sContext, "Connect a", -1,
-                         GrContextDpyWidthGet(&g_sContext) / 2, 20, false);
-    GrStringDrawCentered(&g_sContext, "terminal", -1,
-                         GrContextDpyWidthGet(&g_sContext) / 2, 30, false);
-    GrStringDrawCentered(&g_sContext, "to UART0.", -1,
-                         GrContextDpyWidthGet(&g_sContext) / 2, 40, false);
-    GrStringDrawCentered(&g_sContext, "115000,N,8,1", -1,
-                         GrContextDpyWidthGet(&g_sContext) / 2, 50, false);
 
     //
     // Print hello message to user.
@@ -738,6 +806,11 @@ SerialUI(void)
             UARTprintf("Too many arguments for command processor!\n");
         }
 
+        // Exit SerialUI if logging should start
+        else if(nStatus == BEGIN_LOGGING)
+        {
+            break;
+        }
         //
         // Otherwise the command was executed.  Print the error code if one was
         // returned.
@@ -748,4 +821,6 @@ SerialUI(void)
                         StringFromFResult((FRESULT)nStatus));
         }
     }
+
+    return 1;   // User requested logging begin
 }

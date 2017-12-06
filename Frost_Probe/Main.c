@@ -7,30 +7,31 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+//#include <time.h>
+#include "FP_acquire.h"
+#include "sd_card.h"
+#include "inc/hw_hibernate.h"
 #include "inc/hw_memmap.h"
 #include "driverlib/adc.h"
 #include "driverlib/debug.h"
-#include "driverlib/gpio.h"
-#include "driverlib/pin_map.h"
-#include "driverlib/uart.h"
-#include "utils/uartstdio.h"
-#include <time.h>
 #include "driverlib/fpu.h"
+#include "driverlib/gpio.h"
 #include "driverlib/hibernate.h"
+#include "driverlib/pin_map.h"
+#include "driverlib/rom.h"
 #include "driverlib/sysctl.h"
 #include "driverlib/systick.h"
-#include "driverlib/rom.h"
-#include "utils/ustdlib.h"
-#include "inc/hw_hibernate.h"
-#include "datetimeset.h"
+#include "driverlib/uart.h"
+#include "drivers/cfal96x64x16.h"
+#include "utils/uartstdio.h"
+//#include "utils/ustdlib.h"
+//#include "datetimeset.h"
 #include "grlib/grlib.h"
-#include "FP_acquire.h"
-#include "sd_card.h"
+
 
 // More in-depth description should go here.
 
 uint64_t intRTCtime;
-struct tm RealTime;     // time struct
 
 // This function sets up UART0 to be used for a console to display information
 // as the example is running.
@@ -71,28 +72,6 @@ InitConsole(void)
 }
 
 bool
-SysTimeSet(void)
-{
-
-    UARTprintf("\n\nSystem Date (DD/MM/YY) & Time (HH:MM:SS)\n");
-    ulocaltime(HibernateRTCGet(), &RealTime);
-    UARTprintf("%i/%i/%i %i:%02i:%02i\n", RealTime.tm_mday, (RealTime.tm_mon + 1),
-               (RealTime.tm_year % 100), RealTime.tm_hour, RealTime.tm_min, RealTime.tm_sec);
-
-    // Date change
-    while(!DateSet(RealTime))
-    {
-    }
-
-    // Time change
-    while(!TimeSet(RealTime))
-    {
-    }
-
-    return 1;
-}
-
-bool
 RTCSetup(void)
 {
     HibernateEnableExpClk(SysCtlClockGet());
@@ -100,6 +79,45 @@ RTCSetup(void)
     return true;
 }
 
+// Displays the parameters for the serial connection on the on-board display
+void
+BrdConnConfigDisplay(void)
+{
+    tRectangle sRect;
+
+    // Initialize the display driver.
+    CFAL96x64x16Init();
+
+    // Initialize the graphics context.
+    GrContextInit(&g_sContext, &g_sCFAL96x64x16);
+
+    // Fill the top part of the screen with blue to create the banner.
+    sRect.i16XMin = 0;
+    sRect.i16YMin = 0;
+    sRect.i16XMax = GrContextDpyWidthGet(&g_sContext) - 1;
+    sRect.i16YMax = 9;
+    GrContextForegroundSet(&g_sContext, ClrDarkBlue);
+    GrRectFill(&g_sContext, &sRect);
+
+    // Change foreground for white text.
+    GrContextForegroundSet(&g_sContext, ClrWhite);
+
+    // Put the application name in the middle of the banner.
+    GrContextFontSet(&g_sContext, g_psFontFixed6x8);
+    GrStringDrawCentered(&g_sContext, "Logger", -1,
+                         GrContextDpyWidthGet(&g_sContext) / 2, 4, 0);
+
+    // Show some instructions on the display
+    GrContextFontSet(&g_sContext, g_psFontFixed6x8);
+    GrStringDrawCentered(&g_sContext, "Connect a", -1,
+                         GrContextDpyWidthGet(&g_sContext) / 2, 20, false);
+    GrStringDrawCentered(&g_sContext, "terminal", -1,
+                         GrContextDpyWidthGet(&g_sContext) / 2, 30, false);
+    GrStringDrawCentered(&g_sContext, "to UART0.", -1,
+                         GrContextDpyWidthGet(&g_sContext) / 2, 40, false);
+    GrStringDrawCentered(&g_sContext, "115200,N,8,1", -1,
+                         GrContextDpyWidthGet(&g_sContext) / 2, 50, false);
+}
 
 // Configure ADC0 for a single-ended input and a single sample.  Once the
 // sample is ready, an interrupt flag will be set.  Using a polling method,
@@ -147,22 +165,15 @@ main(void)
         }
     }
 
+    BrdConnConfigDisplay(); // Print serial connection parameters to on-board display
+
     // Setup the RTC for hibernate and acquisition time
     while(!RTCSetup())
     {
     }
 
-    // Display the RTC time and let user set current time
-    while(!SysTimeSet())
-    {
-    }
-
+    // Serial user interface for navigating SD card files and configuring sampling
     while(!SerialUI())
-    {
-    }
-
-    // Setup the ADC and RTC interrupts
-    while(!AcquireSetup())
     {
     }
 

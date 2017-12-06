@@ -12,7 +12,7 @@ extern "C"
 {
 #endif
 
-extern struct tm RealTime;
+//extern struct tm RealTime;
 
 typedef struct
 {

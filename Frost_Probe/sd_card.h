@@ -15,7 +15,6 @@
 #include "utils/uartstdio.h"
 #include "fatfs/src/ff.h"
 #include "fatfs/src/diskio.h"
-#include "drivers/cfal96x64x16.h"
 
 //*****************************************************************************
 //
@@ -131,4 +130,8 @@ extern int Cmd_cd(int argc, char *argv[]);
 extern int Cmd_pwd(int argc, char *argv[]);
 extern int Cmd_cat(int argc, char *argv[]);
 extern int Cmd_help(int argc, char *argv[]);
+extern int Cmd_date();
+extern int Cmd_time();
+extern int Cmd_log();
+extern int Cmd_log_config();
 extern int SerialUI(void);

@@ -26,11 +26,6 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>utils/cmdline.c</name>
-			<type>1</type>
-			<locationURI>LIB_ROOT/utils/cmdline.c</locationURI>
-		</link>
-		<link>
 			<name>third_party/fatfs/port/mmc-dk-tm4c123g.c</name>
 			<type>1</type>
 			<locationURI>LIB_ROOT/third_party/fatfs/port/mmc-dk-tm4c123g.c</locationURI>
