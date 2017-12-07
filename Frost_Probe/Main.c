@@ -177,6 +177,15 @@ main(void)
     {
     }
 
+    // for debugging
+    while(!RTCHandler())
+    {
+    }
+    while(!SerialUI())
+    {
+    }
+
+    // Ok, this isn't for debugging
     while(!StartLogging())
     {
     }

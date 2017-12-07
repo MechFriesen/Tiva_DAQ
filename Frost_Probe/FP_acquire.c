@@ -18,20 +18,21 @@
 #include "driverlib/uart.h"
 #include "driverlib/pin_map.h"
 #include "driverlib/sw_crc.h"
-#include "utils/uartstdio.h"
-#include "utils/ustdlib.h"
 #include "driverlib/sysctl.h"
 #include "driverlib/timer.h"
 #include "fatfs/src/ff.h"
 #include "fatfs/src/diskio.h"
 #include "inc/hw_memmap.h"
 #include "inc/hw_ints.h"
+#include "utils/uartstdio.h"
+#include "utils/ustdlib.h"
 
 
 static volatile uint32_t RTCIntCounter = 0, TimerIntCounter = 0;     // counts number of RTC interrupts for measurement scheduling
 tCfgState ConfigState;
 static const char * const g_pcHex = "0123456789abcdef";
 FIL logFile;
+FATFS g_sFatFs;
 
 // A function for formatting serial output that's faster than UARTprintf (hopefully)
 uint32_t
@@ -56,8 +57,7 @@ itoc( char * bufferString, uint32_t outValue)
 void
 Timer0Handler(void)
 {
-    uint32_t ADC0Value,  charCount;    // buffer for ADC data, number of characters in a string
-    char TimeString[10] = {'\0'}, ADCString[10] = {'\0'};         // buffers for serial output
+    uint32_t ADC0Value;    // buffer for ADC data, number of characters in a string
 
     TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);     // clear timer interrupt
     TimerIntCounter++;      // iterate number of measurements taken in this sample
@@ -77,14 +77,10 @@ Timer0Handler(void)
     ADCSequenceDataGet(ADC0_BASE, 1, &ADC0Value);       // Read ADC Value.
 
     // Print RTC sub-seconds
-    charCount = itoc( TimeString, HibernateRTCSSGet());
-    TimeString[charCount++] = ',';
     f_printf( &logFile, "%i, ", HibernateRTCSSGet());
 
     // Convert ADC reading
     // Create a loop if multiple analog channels are used
-//    charCount = itoc( ADCString, ADC0Value);
-//    ADCString[charCount++] = '\n';
     f_printf( &logFile, "%i\n", ADC0Value);
 
     // Reset the timer interrupt
@@ -100,7 +96,7 @@ RTCHandler(void)
     uint32_t ui32Status, RTCWakeTime, NextMatch;
     struct tm tempDayRollover;
     FRESULT iFResult;
-    char fPathBuf[80];
+    char fPathBuf[LOG_PATH_BUF_SIZE], fNameBuf[16];
 
     // Clear interrupts
     ui32Status = HibernateIntStatus(1);
@@ -113,14 +109,30 @@ RTCHandler(void)
 
     // Get the time
     RTCWakeTime = HibernateRTCGet();
+    ulocaltime( RTCWakeTime, &tempDayRollover);
 
     // Set up the ADC
     while(!ADCSetup())
     {
     }
 
-    // Open the file for reading.
-    iFResult = f_open( &logFile, ConfigState.logFilePath, FA_WRITE);
+    //
+    // Mount the file system, using logical disk 0.
+    //
+    iFResult = f_mount(0, &g_sFatFs);
+    if(iFResult != FR_OK)
+    {
+        UARTprintf("f_mount error: %s\n", StringFromFResult(iFResult));
+        return(1);
+    }
+
+    // Create a file for writing data to
+    strcpy( fPathBuf, ConfigState.logFilePath);     // get dir path
+    sprintf( fNameBuf, "/%i%i%i_%02i%02i.txt", tempDayRollover.tm_mday, tempDayRollover.tm_mon + 1,
+             tempDayRollover.tm_year + 1900, tempDayRollover.tm_hour, tempDayRollover.tm_min);
+    strcat( fPathBuf, fNameBuf);
+
+    iFResult = f_open( &logFile, fPathBuf, FA_CREATE_NEW);
 
     // Return to main if f_open did not succeed
     if(iFResult != FR_OK)
@@ -162,9 +174,10 @@ RTCHandler(void)
     {
         // something to handle roll-over to the next day
         ulocaltime( RTCWakeTime, &tempDayRollover);
-        tempDayRollover.tm_yday++;
+        tempDayRollover.tm_yday++;      // add a day to the day of the year
+        // Handle the year roll-over
         (umktime( &tempDayRollover ) != -1) ? NextMatch = umktime( &tempDayRollover )
-                : tempDayRollover.tm_yday++ ;
+                : tempDayRollover.tm_year++ ;
         NextMatch = umktime( &tempDayRollover );
 
         // for debugging
@@ -261,6 +274,12 @@ AcquireSetup()
     }
 
     return true;
+}
+
+void
+LogDirectorySet(char *LogDirBuf)
+{
+    strcpy( ConfigState.logFilePath, LogDirBuf);
 }
 
 // Generates an RTC match value given minutes from midnight

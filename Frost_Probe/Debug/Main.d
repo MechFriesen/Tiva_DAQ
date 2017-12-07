@@ -8,6 +8,10 @@ Main.obj: C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/linkage.h
 Main.obj: C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/stdarg.h
 Main.obj: C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/string.h
 Main.obj: ../FP_acquire.h
+Main.obj: C:/ti/TivaWare_C_Series-2.1.3.156/third_party/fatfs/src/ff.h
+Main.obj: C:/ti/TivaWare_C_Series-2.1.3.156/third_party/fatfs/src/integer.h
+Main.obj: C:/ti/TivaWare_C_Series-2.1.3.156/third_party/fatfs/src/ffconf.h
+Main.obj: C:/ti/TivaWare_C_Series-2.1.3.156/third_party/fatfs/src/diskio.h
 Main.obj: ../sd_card.h
 Main.obj: C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/string.h
 Main.obj: C:/ti/TivaWare_C_Series-2.1.3.156/inc/hw_memmap.h
@@ -23,10 +27,6 @@ Main.obj: C:/ti/TivaWare_C_Series-2.1.3.156/grlib/grlib.h
 Main.obj: ../utils/cmdline.h
 Main.obj: C:/ti/TivaWare_C_Series-2.1.3.156/utils/uartstdio.h
 Main.obj: C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/stdarg.h
-Main.obj: C:/ti/TivaWare_C_Series-2.1.3.156/third_party/fatfs/src/ff.h
-Main.obj: C:/ti/TivaWare_C_Series-2.1.3.156/third_party/fatfs/src/integer.h
-Main.obj: C:/ti/TivaWare_C_Series-2.1.3.156/third_party/fatfs/src/ffconf.h
-Main.obj: C:/ti/TivaWare_C_Series-2.1.3.156/third_party/fatfs/src/diskio.h
 Main.obj: C:/ti/TivaWare_C_Series-2.1.3.156/inc/hw_hibernate.h
 Main.obj: C:/ti/TivaWare_C_Series-2.1.3.156/driverlib/adc.h
 Main.obj: C:/ti/TivaWare_C_Series-2.1.3.156/driverlib/debug.h
@@ -41,6 +41,10 @@ C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/linkage.h:
 C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/stdarg.h: 
 C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/string.h: 
 ../FP_acquire.h: 
+C:/ti/TivaWare_C_Series-2.1.3.156/third_party/fatfs/src/ff.h: 
+C:/ti/TivaWare_C_Series-2.1.3.156/third_party/fatfs/src/integer.h: 
+C:/ti/TivaWare_C_Series-2.1.3.156/third_party/fatfs/src/ffconf.h: 
+C:/ti/TivaWare_C_Series-2.1.3.156/third_party/fatfs/src/diskio.h: 
 ../sd_card.h: 
 C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/string.h: 
 C:/ti/TivaWare_C_Series-2.1.3.156/inc/hw_memmap.h: 
@@ -56,10 +60,6 @@ C:/ti/TivaWare_C_Series-2.1.3.156/grlib/grlib.h:
 ../utils/cmdline.h: 
 C:/ti/TivaWare_C_Series-2.1.3.156/utils/uartstdio.h: 
 C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/stdarg.h: 
-C:/ti/TivaWare_C_Series-2.1.3.156/third_party/fatfs/src/ff.h: 
-C:/ti/TivaWare_C_Series-2.1.3.156/third_party/fatfs/src/integer.h: 
-C:/ti/TivaWare_C_Series-2.1.3.156/third_party/fatfs/src/ffconf.h: 
-C:/ti/TivaWare_C_Series-2.1.3.156/third_party/fatfs/src/diskio.h: 
 C:/ti/TivaWare_C_Series-2.1.3.156/inc/hw_hibernate.h: 
 C:/ti/TivaWare_C_Series-2.1.3.156/driverlib/adc.h: 
 C:/ti/TivaWare_C_Series-2.1.3.156/driverlib/debug.h: 

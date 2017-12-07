@@ -117,5 +117,5 @@ extern int Cmd_date();
 extern int Cmd_time();
 extern int Cmd_log();
 extern int Cmd_log_config();
-extern int Cmd_log_file(int argc, char *argv[]);
+extern int Cmd_log_dir(int argc, char *argv[]);
 extern int SerialUI(void);

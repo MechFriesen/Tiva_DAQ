@@ -12,16 +12,19 @@ extern "C"
 {
 #endif
 
-#define PATH_BUF_SIZE   64
+#include "fatfs/src/ff.h"
+#include "fatfs/src/diskio.h"
+
+#define LOG_PATH_BUF_SIZE   18
 
 typedef struct
 {
     uint32_t Cookie;                        // Cookie
-    char     logFilePath[PATH_BUF_SIZE];    // File path to where logged data is saved
+    char     logFilePath[LOG_PATH_BUF_SIZE];    // File path to where logged data is saved
     uint32_t MeasPeriod;                    // inverse of sample rate
     uint16_t RTCMatchPeriod[12];            // seconds until next RTC match
     uint16_t SamplesPerDay;                 // number of samples per day
-    uint32_t MeasurementsPerSample;         // number of measurements in a sample
+    uint16_t MeasurementsPerSample;         // number of measurements in a sample
     uint16_t RTCMatchCount;                 // number of RTC matches
     uint32_t uiCRC;                         // Checksum
 }
@@ -33,6 +36,7 @@ extern bool AcquireSetup( void );
 extern uint32_t RTCMatchGenerate( uint16_t MinutesSinceMidnight );
 extern bool StartLogging( void );
 extern bool ADCSetup( void );
+extern void LogDirectorySet( char *LogDirBuf );
 extern bool RTCHandler( void);
-extern bool GetHibData( tCfgState *ConfigState);
-extern bool SetHibData( tCfgState *ConfigState);
+extern bool GetHibData( tCfgState *ConfigState );
+extern bool SetHibData( tCfgState *ConfigState );
