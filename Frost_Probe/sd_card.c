@@ -29,7 +29,7 @@
 #include "sd_card.h"
 #include "FP_acquire.h"
 #include "inc/hw_memmap.h"
-//#include "driverlib/fpu.h"
+#include "driverlib/fpu.h"
 #include "driverlib/gpio.h"
 #include "driverlib/hibernate.h"
 #include "driverlib/interrupt.h"
@@ -66,12 +66,22 @@
 //
 //*****************************************************************************
 
-////*****************************************************************************
-////
-//// This is the table that holds the command names, implementing functions, and
-//// brief description.
-////
-////*****************************************************************************
+//*****************************************************************************
+//
+// The following are data structures used by FatFs.
+//
+//*****************************************************************************
+static FATFS g_sFatFs;
+static DIR g_sDirObject;
+static FILINFO g_sFileInfo;
+static FIL g_sFileObject;
+
+//*****************************************************************************
+//
+// This is the table that holds the command names, implementing functions, and
+// brief description.
+//
+//*****************************************************************************
 tCmdLineEntry g_psCmdTable[] =
 {
     { "help",       Cmd_help,       "Display list of commands" },
@@ -195,6 +205,7 @@ Cmd_ls(int argc, char *argv[])
     //
     // Open the current directory for access.
     //
+    UARTprintf("g_pcCwdBuf: %s", g_pcCwdBuf);
     iFResult = f_opendir(&g_sDirObject, g_pcCwdBuf);
 
     //
@@ -899,7 +910,7 @@ SerialUI(void)
     //
     // Print hello message to user.
     //
-    UARTprintf("\n\nSD Card Example Program\n");
+    UARTprintf("\n\nLogger Program\n");
     UARTprintf("Type \'help\' for help.\n");
 
     //

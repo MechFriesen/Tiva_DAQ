@@ -138,7 +138,7 @@ main(void)
     // for setup and currently data output (SD card saving is WIP)
     InitConsole();
 
-    // Enable the peripherals used by this example.
+    // Enable the peripheral for the SD card.
     ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_SSI0);
 
     // Configure SysTick for a 100Hz interrupt.  The FatFs driver wants a 10 ms tick
@@ -181,9 +181,9 @@ main(void)
     while(!RTCHandler())
     {
     }
-    while(!SerialUI())
-    {
-    }
+//    while(!SerialUI())
+//    {
+//    }
 
     // Ok, this isn't for debugging
     while(!StartLogging())

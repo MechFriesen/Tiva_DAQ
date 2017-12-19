@@ -58,16 +58,6 @@ static char g_pcCmdBuf[CMD_BUF_SIZE];
 
 //*****************************************************************************
 //
-// The following are data structures used by FatFs.
-//
-//*****************************************************************************
-static FATFS g_sFatFs;
-static DIR g_sDirObject;
-static FILINFO g_sFileInfo;
-static FIL g_sFileObject;
-
-//*****************************************************************************
-//
 // A structure that holds a mapping between an FRESULT numerical code, and a
 // string representation.  FRESULT codes are returned from the FatFs FAT file
 // system driver.

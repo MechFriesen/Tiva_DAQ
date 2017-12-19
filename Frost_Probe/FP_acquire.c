@@ -10,6 +10,7 @@
 #include <time.h>
 #include <stdio.h>
 #include "FP_acquire.h"
+#include "sd_card.h"
 #include "driverlib/adc.h"
 #include "driverlib/debug.h"
 #include "driverlib/gpio.h"
@@ -31,8 +32,8 @@
 static volatile uint32_t RTCIntCounter = 0, TimerIntCounter = 0;     // counts number of RTC interrupts for measurement scheduling
 tCfgState ConfigState;
 static const char * const g_pcHex = "0123456789abcdef";
-FIL logFile;
-FATFS g_sFatFs;
+static FATFS g_sFatFs;
+static FIL logFile;
 
 // A function for formatting serial output that's faster than UARTprintf (hopefully)
 uint32_t
@@ -119,6 +120,7 @@ RTCHandler(void)
     //
     // Mount the file system, using logical disk 0.
     //
+
     iFResult = f_mount(0, &g_sFatFs);
     if(iFResult != FR_OK)
     {
@@ -128,11 +130,11 @@ RTCHandler(void)
 
     // Create a file for writing data to
     strcpy( fPathBuf, ConfigState.logFilePath);     // get dir path
-    sprintf( fNameBuf, "/%i%i%i_%02i%02i.txt", tempDayRollover.tm_mday, tempDayRollover.tm_mon + 1,
+    sprintf( fNameBuf, "/%02i02%i%i_%02i%02i.txt", tempDayRollover.tm_mday, tempDayRollover.tm_mon + 1,
              tempDayRollover.tm_year + 1900, tempDayRollover.tm_hour, tempDayRollover.tm_min);
     strcat( fPathBuf, fNameBuf);
 
-    iFResult = f_open( &logFile, fPathBuf, FA_CREATE_NEW);
+    iFResult = f_open( &logFile, fPathBuf, FA_CREATE_NEW | FA_WRITE);
 
     // Return to main if f_open did not succeed
     if(iFResult != FR_OK)
@@ -159,6 +161,7 @@ RTCHandler(void)
     }
 
     UARTprintf("Finished the measurements for this sample.\n");
+    f_close( &logFile);
 
     // Set the RTC time for the next sample to be taken
     ConfigState.RTCMatchCount++;    // Count which sample this is
